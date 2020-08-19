@@ -14,7 +14,7 @@ console.log("Hello World!");
 
 ## 社群守則
 
-（稍候提供）
+[點我查看](RULES.md)
 
 ## 如何加入
 
