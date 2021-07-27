@@ -1,4 +1,4 @@
-# LINE社群 - 程式研究社
+# LINE社群 - 資訊安全&程式設計&Web技術 研究社群
 
 ```js
 console.log("Hello World!");
