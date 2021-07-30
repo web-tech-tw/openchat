@@ -20,4 +20,4 @@ console.log("Hello World!");
 
 點選下方圖示即可，歡迎您的加入 owo
 
-[![openchat](openchat.png) 加入社群](https://line.me/ti/g2/lPx3ICiyRmK_igae77rMpw?utm_source=invitation&utm_medium=link_copy&utm_campaign=default)
+[![openchat](openchat.png) 加入社群](https://line.me/ti/g2/lPx3ICiyRmK_igae77rMpw)
