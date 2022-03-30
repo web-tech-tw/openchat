@@ -1,7 +1,7 @@
 <template>
   <div class="mx-10 my-10">
     <div class="prose lg:prose-xl">
-      <h1>社群規範</h1>
+      <h1>OpenChat Hub 規範</h1>
       <p>歡迎各位加入由 臺灣網際網路技術推廣組織 所管理的 LINE社群 owo</p>
       <p>本組織為各位開發者、學生、研究人員......等等，在各領域能彼此切磋、詢問、提供協助的社群空間。</p>
       <p>
