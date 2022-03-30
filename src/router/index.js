@@ -16,9 +16,9 @@ const routes = [
     component: () => import('../views/RuleView.vue')
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue')
+    path: '/join',
+    name: 'join',
+    component: () => import('../views/JoinView.vue')
   }
 ]
 
