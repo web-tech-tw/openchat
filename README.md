@@ -1,5 +1,24 @@
-# LINE 社群列表
+# openchat-vue
 
-- [資訊安全&程式設計&Web技術 研究社群](hub/research)
-- [LINE Developers](hub/line_dev)
-- [PHP Taiwan](hub/php_tw)
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
