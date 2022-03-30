@@ -195,7 +195,7 @@ export default {
           {
             name: "LINE OpenChat",
             description: "歡迎加入",
-            icon: "/assets/images/brands/line.svg",
+            icon: "/static/images/brands/line.svg",
             action: () => location.assign("https://web-tech-tw.github.io/openchat")
           }
         ]
@@ -203,13 +203,13 @@ export default {
       {
         name: "GitHub",
         type: "function",
-        icon: "/assets/images/brands/github.svg",
+        icon: "/static/images/brands/github.svg",
         action: () => location.assign("https://github.com/web-tech-tw")
       },
       {
         name: "Discord",
         type: "function",
-        icon: "/assets/images/brands/discord.svg",
+        icon: "/static/images/brands/discord.svg",
         action: () => location.assign("https://discord.gg/xpyuq342nX")
       }
     ],
