@@ -8,7 +8,7 @@
         </h2>
       </div>
       <p class="text-xl text-gray-500 max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 lg:flex lg:items-center lg:justify-between">
-        由 臺灣網際網路技術推廣組織 所管理的 LINE社群 列表。
+        由 臺灣網際網路技術推廣組織 所管理的 LINE社群。
       </p>
     </div>
     <div class="mt-10 mx-auto py-10 max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
