@@ -3,14 +3,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10">
         <div class="flex justify-start lg:w-0 lg:flex-1">
-          <a href="/">
-            <h1 class="flex-auto text-lg font-semibold text-gray-900 hidden sm:block">
-              Taiwan Web Technology Promotion Organization
+          <router-link to="/">
+            <h1 class="flex-auto text-lg font-semibold text-gray-900">
+              OpenChat Hub
             </h1>
-            <h1 class="flex-auto text-lg font-semibold text-gray-900 sm:hidden">
-              Web Tech TW
-            </h1>
-          </a>
+          </router-link>
         </div>
         <nav class="md:flex space-x-10 hidden">
           <div v-for="(item, index) in menu" :key="index">
@@ -97,7 +94,7 @@
           <div class="flex items-center justify-between" @click="mobile_menu.status = false">
             <div>
               <h1 class="flex-auto text-lg font-semibold text-gray-900 sm:hidden">
-                Web Tech TW
+                OpenChat Hub
               </h1>
             </div>
             <div class="-mr-2">
@@ -188,7 +185,7 @@ export default {
   data: () => ({
     menu: [
       {
-        name: "交流平台",
+        name: "社群列表",
         type: "dropdown",
         status: false,
         items: [
@@ -201,16 +198,10 @@ export default {
         ]
       },
       {
-        name: "GitHub",
+        name: "回首頁",
         type: "function",
-        icon: "/static/images/brands/github.svg",
-        action: () => location.assign("https://github.com/web-tech-tw")
-      },
-      {
-        name: "Discord",
-        type: "function",
-        icon: "/static/images/brands/discord.svg",
-        action: () => location.assign("https://discord.gg/xpyuq342nX")
+        icon: require("@/assets/images/icons/home.svg"),
+        action: () => location.assign("https://web-tech-tw.github.io")
       }
     ],
     mobile_menu: {
