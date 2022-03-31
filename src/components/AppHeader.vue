@@ -46,7 +46,7 @@
                         class="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50 cursor-pointer"
                         @click="child.action"
                     >
-                      <img class="rounded-full" :src="child.icon" :alt="child.name" width="30" height="30">
+                      <img :alt="child.name" :src="child.icon" class="rounded-full" height="30" width="30">
                       <div class="ml-4">
                         <p class="text-base font-medium text-gray-900">
                           {{ child.name }}
@@ -147,7 +147,7 @@
                             class="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50 cursor-pointer"
                             @click="child.action"
                         >
-                          <img class="rounded-full" :src="child.icon" :alt="child.name" width="30" height="30">
+                          <img :alt="child.name" :src="child.icon" class="rounded-full" height="30" width="30">
                           <div class="ml-4">
                             <p class="text-base font-medium text-gray-900">
                               {{ child.name }}
@@ -167,7 +167,7 @@
                     type="button"
                     @click="item.action"
                 >
-                  <img class="rounded-full" :src="item.icon" :alt="item.name" width="30" height="30">
+                  <img :alt="item.name" :src="item.icon" class="rounded-full" height="30" width="30">
                   <span class="ml-3 text-base font-medium text-gray-900">{{ item.name }}</span>
                 </button>
               </div>
@@ -183,30 +183,39 @@
 export default {
   name: 'AppHeader',
   data: () => ({
-    menu: [
-      {
-        name: "社群列表",
-        type: "dropdown",
-        status: false,
-        items: [
-          {
-            name: "LINE OpenChat",
-            description: "歡迎加入",
-            icon: "/static/images/brands/line.svg",
-            action: () => location.assign("https://web-tech-tw.github.io/openchat")
-          }
-        ]
-      },
-      {
-        name: "回首頁",
-        type: "function",
-        icon: require("@/assets/images/icons/home.svg"),
-        action: () => location.assign("https://web-tech-tw.github.io")
-      }
-    ],
     mobile_menu: {
       status: false
     },
-  })
+  }),
+  computed: {
+    menu() {
+      return [
+        {
+          name: "社群列表",
+          type: "function",
+          icon: require("@/assets/images/icons/home.svg"),
+          action: () => {
+            this.$router.push({name: "join"})
+            this.mobile_menu.status = false
+          }
+        },
+        {
+          name: "社群規範",
+          type: "function",
+          icon: require("@/assets/images/icons/home.svg"),
+          action: () => {
+            this.$router.push({name: "rule"})
+            this.mobile_menu.status = false
+          }
+        },
+        {
+          name: "回首頁",
+          type: "function",
+          icon: require("@/assets/images/icons/home.svg"),
+          action: () => location.assign("https://web-tech-tw.github.io")
+        }
+      ]
+    },
+  }
 }
 </script>

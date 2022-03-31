@@ -7,6 +7,11 @@
       <div>
         <h2 class="text-gray-800 text-3xl font-semibold">{{ info.name }}</h2>
         <p class="mt-2 text-gray-600">{{ info.description }}</p>
+        <p class="mt-2 text-amber-500">
+          加入社群，即代表您同意遵守我們的
+          <router-link to="/rule" class="text-red-500">社群守則</router-link>
+          。
+        </p>
       </div>
       <div class="flex justify-end mt-4">
         <a class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" :href="info.url">加入社群</a>
