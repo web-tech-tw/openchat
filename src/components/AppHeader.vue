@@ -14,7 +14,7 @@
             <div v-if="item.type === 'dropdown'" class="relative">
               <button
                   aria-expanded="false"
-                  class="text-gray-500 group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="text-gray-500 group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
                   type="button"
                   @click="item.status = !item.status"
               >
@@ -74,7 +74,7 @@
         <div class="-mr-2 -my-2 md:hidden">
           <button
               aria-expanded="false"
-              class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500"
               type="button"
               @click="mobile_menu.status = true"
           >
@@ -99,7 +99,7 @@
             </div>
             <div class="-mr-2">
               <button
-                  class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                  class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500"
                   type="button">
                 <span class="sr-only">Close menu</span>
                 <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor"
@@ -115,7 +115,7 @@
                 <div v-if="item.type === 'dropdown'" class="relative">
                   <button
                       aria-expanded="false"
-                      class="text-gray-500 group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full"
+                      class="text-gray-500 group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 w-full"
                       type="button"
                       @click="item.status = !item.status"
                   >
