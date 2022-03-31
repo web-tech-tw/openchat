@@ -19,6 +19,12 @@ const routes = [
     path: '/join',
     name: 'join',
     component: () => import('../views/JoinView.vue')
+  },
+  {
+    path: '/join/:code',
+    name: 'join-chat',
+    component: () => import('../views/JoinChatView.vue'),
+    props: true
   }
 ]
 

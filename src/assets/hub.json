@@ -1,22 +1,22 @@
-[
-  {
+{
+  "research": {
     "name": "資訊安全&程式設計&Web技術 研究社群",
     "description": "console.log(\"Hello World!\");\n\n歡迎來到程式的世界，這裡有各式各樣類型的開發者。\n\n從網路工程到機器學習，歡迎彼此互相切磋及探討相關問題。",
     "url": "https://line.me/ti/g2/lPx3ICiyRmK_igae77rMpw"
   },
-  {
+  "line-dev": {
     "name": "LINE Developers (Community)",
     "description": "LINE開發者社群，你是LINE Developer嗎？\n\n歡迎您的加入！這裡是非官方的OpenChat社群，為即時與開發者們互動所打造，歡迎各位的加入！",
     "url": "https://line.me/ti/g2/Fi11VhNE7XDI0MPmxxbnoA"
   },
-  {
+  "php-tw": {
     "name": "PHP Taiwan",
     "description": "專屬PHP的社群",
     "url": "https://line.me/ti/g2/rQT19HAbBoQJ12FBMqsMAA"
   },
-  {
+  "vue-tw": {
     "name": "Vue.js Taiwan",
     "description": "只有Vue.js",
     "url": "https://line.me/ti/g2/J7bTfoHgmfgc42C9baJNs2gwH00kAMd9QfJDsQ"
   }
-]
+}

@@ -4,6 +4,9 @@
 
 <script>
 export default {
-  name: "JoinView"
+  name: "JoinView",
+  created() {
+    console.log(this.$route)
+  }
 }
 </script>
