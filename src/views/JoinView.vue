@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="my-9">
     <div class="my-3 text-xl text-center">OpenChat Hub 社群列表</div>
     <div class="container mb-2 flex mx-auto w-full items-center justify-center">
       <ul class="flex flex-col p-4">

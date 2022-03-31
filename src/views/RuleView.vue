@@ -1,5 +1,5 @@
 <template>
-  <div class="my-5 flex justify-center mx-5">
+  <div class="my-9 flex justify-center mx-5">
     <div class="prose lg:prose-xl">
       <h1>OpenChat Hub 規範</h1>
       <p>歡迎各位加入由 臺灣網際網路技術推廣組織 所管理的 LINE社群 owo</p>
