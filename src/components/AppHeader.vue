@@ -193,7 +193,7 @@ export default {
         {
           name: "社群列表",
           type: "function",
-          icon: require("@/assets/images/icons/home.svg"),
+          icon: require("@/assets/images/icons/list-ul.svg"),
           action: () => {
             this.$router.push({name: "join"})
             this.mobile_menu.status = false
@@ -202,7 +202,7 @@ export default {
         {
           name: "社群規範",
           type: "function",
-          icon: require("@/assets/images/icons/home.svg"),
+          icon: require("@/assets/images/icons/exclamation-circle.svg"),
           action: () => {
             this.$router.push({name: "rule"})
             this.mobile_menu.status = false
@@ -211,7 +211,7 @@ export default {
         {
           name: "回首頁",
           type: "function",
-          icon: require("@/assets/images/icons/home.svg"),
+          icon: require("@/assets/images/icons/house.svg"),
           action: () => location.assign("https://web-tech-tw.github.io")
         }
       ]
