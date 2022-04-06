@@ -63,57 +63,8 @@
           <div class="mt-6">
             <nav class="grid gap-y-8">
               <div v-for="(item, index) in menu" :key="index">
-                <div v-if="item.type === 'dropdown'" class="relative">
-                  <button
-                      aria-expanded="false"
-                      class="text-gray-500 group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 w-full"
-                      type="button"
-                      @click="item.status = !item.status"
-                  >
-                    <span>{{ item.name }}</span>
-                    <svg
-                        aria-hidden="true"
-                        class="text-gray-400 ml-2 h-5 w-5 group-hover:text-gray-500 ml-auto"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                          clip-rule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          fill-rule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                  <div
-                      class="absolute z-10 -ml-7 mt-3 transform px-2 w-screen max-w-md sm:px-0 sm:-ml-4 lg:ml-0 lg:left-1/2 lg:-translate-x-1/2">
-                    <div
-                        v-show="item.status"
-                        class="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden"
-                    >
-                      <div class="relative grid gap-6 bg-white px-5 py-6 sm:gap-8 sm:p-8">
-                        <div
-                            v-for="(child, index) in item.items"
-                            :key="index"
-                            class="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50 cursor-pointer"
-                            @click="child.action"
-                        >
-                          <img :alt="child.name" :src="child.icon" class="rounded-full" height="30" width="30">
-                          <div class="ml-4">
-                            <p class="text-base font-medium text-gray-900">
-                              {{ child.name }}
-                            </p>
-                            <p class="mt-1 text-sm text-gray-500">
-                              {{ child.description }}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <button
-                    v-else-if="item.type === 'function'"
+                    v-if="item.type === 'function'"
                     class="-m-3 p-3 flex items-center rounded-md hover:bg-gray-50 w-full"
                     type="button"
                     @click="item.action"
