@@ -1,15 +1,21 @@
 <template>
-  <div class="flex w-full justify-center bg-sky-500">
-    <div v-for="(i, j) in applications" :key="j" class="max-w-md py-4 px-8 bg-white shadow-lg rounded-lg my-20">
+  <div class="flex flex-wrap justify-center bg-sky-500">
+    <div v-for="(i, j) in applications" :key="j" class="w-100 mx-16 my-3 py-4 px-8 bg-white shadow-lg rounded-lg">
       <div>
-        <h2 class="text-gray-800 text-3xl font-semibold">
+        <h2 class="text-gray-800 text-3xl mb-1 font-semibold">
           {{ i.code }}
         </h2>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-1 text-gray-600">
+          {{ i.room_id }}
+        </p>
+        <p class="mt-1 text-gray-600">
           {{ i.user_agent }}
         </p>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-1 text-gray-600">
           {{ i.ip_address }}
+        </p>
+        <p class="mt-1 text-gray-600">
+          {{ new Date(i.created_at * 1000) }}
         </p>
       </div>
     </div>
