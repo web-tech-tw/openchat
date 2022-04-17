@@ -103,10 +103,22 @@ export default {
       if (!this.accept) {
         this.accept = true;
         this.loading = true;
-        setTimeout(() => {
-          this.loading = false;
-          this.secret = "openchat";
-        }, 3000);
+        const formData = new URLSearchParams();
+        formData.set('slug', this.code);
+        this.$axios
+            .post('openchat-join/application', formData)
+            .then((xhr) => {
+              this.loading = false;
+              this.secret = xhr.data.code;
+            })
+            .catch((error) => {
+              if (!error?.response?.data?.code) {
+                this.notice = '授權伺服器發生嚴重錯誤';
+                return;
+              }
+              this.loading = false;
+              this.secret = error?.response?.data?.code;
+            });
       } else {
         location.href = this.info.url;
       }
