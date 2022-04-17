@@ -14,7 +14,7 @@
         </p>
         <p class="mt-2 text-red-600" v-show="notice">{{ notice }}</p>
         <p class="mt-2 text-gray-600" v-show="accept">
-          請複製這份代碼，再複製到OpenChat的審核答案內：
+          請複製這份代碼，再貼上到OpenChat的審核答案內：
         </p>
         <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md" v-show="accept">
           <input class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
@@ -85,7 +85,7 @@ export default {
           "加入社群"
           : this.loading
               ? "載入中..."
-              : "送出，並將前往OpenChat界面於輸入代碼"
+              : "前往OpenChat界面貼上代碼"
     }
   },
   methods: {
