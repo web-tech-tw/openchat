@@ -27,6 +27,11 @@ const routes = [
     props: true
   },
   {
+    path: '/admin/join',
+    name: 'admin-join',
+    component: () => import('../views/AdminJoinView.vue')
+  },
+  {
     path: '*',
     name: 'not-found',
     component: () => import('../views/NotFoundView.vue'),

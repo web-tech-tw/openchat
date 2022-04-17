@@ -106,7 +106,7 @@ export default {
         const formData = new URLSearchParams();
         formData.set('slug', this.code);
         this.$axios
-            .post('openchat-join/application', formData)
+            .post('application', formData)
             .then((xhr) => {
               this.loading = false;
               this.secret = xhr.data.code;

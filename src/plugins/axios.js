@@ -9,7 +9,7 @@ import axios from "axios";
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 const config = {
-    baseURL: 'https://web-tech-tw.eu.org',
+    baseURL: process.env.VUE_APP_OPENCHAT_JOIN_HOST || '',
     timeout: 60 * 1000
     // withCredentials: true, // Check cross-site Access-Control
 };
