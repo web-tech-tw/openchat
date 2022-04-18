@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap w-full justify-center bg-sky-500 py-20">
+  <div v-if="ready" class="flex flex-wrap w-full justify-center bg-sky-500 py-20">
     <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg">
       <h2 class="text-gray-800 text-3xl font-semibold">檢查加入代碼</h2>
       <p class="mt-2 text-gray-600">請輸入申請人的加入代碼：</p>
@@ -48,6 +48,7 @@
 export default {
   name: "AdminJoinView",
   data: () => ({
+    ready: false,
     query: null,
     notice: null,
     application: {}
@@ -98,6 +99,8 @@ export default {
           .then(() => this.application = {})
           .catch((error) => console.error((error)));
     }
+  },
+  created() {
   }
 }
 </script>
