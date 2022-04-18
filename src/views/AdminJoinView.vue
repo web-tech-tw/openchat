@@ -1,23 +1,29 @@
 <template>
-  <div class="flex flex-wrap justify-center bg-sky-500">
-    <div v-for="(i, j) in applications" :key="j" class="w-100 mx-16 my-3 py-4 px-8 bg-white shadow-lg rounded-lg">
-      <div>
-        <h2 class="text-gray-800 text-3xl mb-1 font-semibold">
-          {{ i.code }}
-        </h2>
-        <p class="mt-1 text-gray-600">
-          {{ i.room_id }}
-        </p>
-        <p class="mt-1 text-gray-600">
-          {{ i.user_agent }}
-        </p>
-        <p class="mt-1 text-gray-600">
-          {{ i.ip_address }}
-        </p>
-        <p class="mt-1 text-gray-600">
-          {{ new Date(i.created_at * 1000) }}
-        </p>
+  <div class="flex flex-wrap w-full justify-center bg-sky-500 py-20">
+    <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg" mx-3>
+      <h2 class="text-gray-800 text-3xl font-semibold">檢查加入代碼</h2>
+      <p class="mt-2 text-gray-600">請輸入申請人的加入代碼：</p>
+      <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
+        <input class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
+               type="text" v-model="query">
+        <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="submit">
+          <svg class="mt-1 h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                  stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
+    </div>
+    <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg" v-show="application.code">
+      <h2 class="text-gray-800 text-3xl font-semibold">
+        加入代號：{{ application.code }}
+      </h2>
+      <p class="mt-2 text-gray-600">
+        使用者代理：{{ application.user_agent }}<br/>
+        IP 位址：{{ application.ip_address }}<br/>
+        申請時間：{{ new Date(application.created_at * 1000) }}
+      </p>
     </div>
   </div>
 </template>
@@ -26,18 +32,25 @@
 export default {
   name: "AdminJoinView",
   data: () => ({
-    applications: []
+    query: null,
+    application: {}
   }),
   computed: {
     authOptions() {
       return {headers: {Authorization: localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME)}}
     }
   },
-  created() {
-    this.$axios
-        .get("applications", this.authOptions)
-        .then((xhr) => this.applications.push(...xhr.data))
-        .catch((error) => console.log(error));
+  methods: {
+    submit() {
+      const options = {
+        ...this.authOptions,
+        params: {code: this.query}
+      };
+      this.$axios
+          .get("application", options)
+          .then((xhr) => this.application = xhr.data)
+          .catch((error) => console.error((error)));
+    }
   }
 }
 </script>
