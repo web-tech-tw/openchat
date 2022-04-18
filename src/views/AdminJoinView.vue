@@ -14,6 +14,7 @@
           </svg>
         </button>
       </div>
+      <p class="mt-2 text-red-600" v-show="notice">{{ notice }}</p>
     </div>
     <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg" v-show="application.code">
       <h2 class="text-gray-800 text-3xl font-semibold">
@@ -24,7 +25,7 @@
         IP 位址：{{ application.ip_address }}<br/>
         申請時間：{{ new Date(application.created_at * 1000) }}
       </p>
-      <div class="flex justify-end mt-4">
+      <div class="flex justify-end mt-4" v-if="!application.approval_by">
         <button
             class="flex items-center justify-center bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 mx-1 rounded-full"
             @click="approval">
@@ -36,6 +37,9 @@
           否決
         </button>
       </div>
+      <p class="mt-2 text-amber-600" v-else>
+        已由 {{ application.approval_by }} 於 {{ new Date(application.approval_at) }} 許可
+      </p>
     </div>
   </div>
 </template>
@@ -45,6 +49,7 @@ export default {
   name: "AdminJoinView",
   data: () => ({
     query: null,
+    notice: null,
     application: {}
   }),
   computed: {
@@ -60,27 +65,33 @@ export default {
       };
       this.$axios
           .get("application", options)
-          .then((xhr) => this.application = xhr.data)
-          .catch((error) => console.error((error)));
+          .then((xhr) => {
+            this.application = xhr.data;
+            this.notice = "";
+          })
+          .catch((error) => {
+            this.application = {};
+            if (error?.response?.status !== 404) {
+              this.notice = "發生嚴重錯誤";
+              return;
+            }
+            this.notice = "加入代碼不存在"
+          });
     },
     approval() {
-      const formData = new URLSearchParams();
-      formData.set("code", this.application.code);
       const options = {
         ...this.authOptions,
-        data: formData
+        params: {code: this.application.code}
       };
       this.$axios
-          .patch("application", options)
+          .patch("application", null, options)
           .then(() => this.application = {})
           .catch((error) => console.error((error)));
     },
     reject() {
-      const formData = new URLSearchParams();
-      formData.set("code", this.application.code);
       const options = {
         ...this.authOptions,
-        data: formData
+        params: {code: this.application.code}
       };
       this.$axios
           .delete("application", options)
