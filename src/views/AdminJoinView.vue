@@ -66,16 +66,24 @@ export default {
     approval() {
       const formData = new URLSearchParams();
       formData.set("code", this.application.code);
+      const options = {
+        ...this.authOptions,
+        data: formData
+      };
       this.$axios
-          .post("application", formData, this.authOptions)
+          .patch("application", options)
           .then(() => this.application = {})
           .catch((error) => console.error((error)));
     },
     reject() {
       const formData = new URLSearchParams();
       formData.set("code", this.application.code);
+      const options = {
+        ...this.authOptions,
+        data: formData
+      };
       this.$axios
-          .delete("application", formData, this.authOptions)
+          .delete("application", options)
           .then(() => this.application = {})
           .catch((error) => console.error((error)));
     }
