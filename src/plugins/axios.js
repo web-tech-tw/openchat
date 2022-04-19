@@ -9,16 +9,18 @@ import axios from "axios";
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 const config = {
-    baseURL: process.env.VUE_APP_OPENCHAT_JOIN_HOST || '',
-    timeout: 60 * 1000
-    // withCredentials: true, // Check cross-site Access-Control
+    baseURL: process.env.VUE_APP_SARA_RECV_HOST || '',
+    timeout: 60 * 1000,
 };
 
 const _axios = axios.create(config);
 
 _axios.interceptors.request.use(
     function (config) {
-        // Do something before request is sent
+        const token = localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME);
+        if (token) {
+            config.headers["authorization"] = `SARA ${token}`;
+        }
         return config;
     },
     function (error) {
@@ -30,7 +32,12 @@ _axios.interceptors.request.use(
 // Add a response interceptor
 _axios.interceptors.response.use(
     function (response) {
-        // Do something with response data
+        if ("sara-issue" in response?.headers) {
+            localStorage.setItem(
+                process.env.VUE_APP_SARA_TOKEN_NAME,
+                response.headers["sara-issue"]
+            );
+        }
         return response;
     },
     function (error) {
@@ -39,23 +46,25 @@ _axios.interceptors.response.use(
     }
 );
 
-Plugin.install = function (Vue) {
-    Vue.axios = _axios;
-    window.axios = _axios;
-    Object.defineProperties(Vue.prototype, {
-        axios: {
-            get() {
-                return _axios;
-            }
-        },
-        $axios: {
-            get() {
-                return _axios;
-            }
-        },
-    });
-};
+const extension = {
+    install: (Vue) => {
+        Vue.axios = _axios;
+        window.axios = _axios;
+        Object.defineProperties(Vue.prototype, {
+            axios: {
+                get() {
+                    return _axios;
+                }
+            },
+            $axios: {
+                get() {
+                    return _axios;
+                }
+            },
+        });
+    }
+}
 
-Vue.use(Plugin)
+Vue.use(extension)
 
-export default Plugin;
+export default extension;
