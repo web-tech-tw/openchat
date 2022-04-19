@@ -59,17 +59,9 @@ export default {
     notice: null,
     application: {}
   }),
-  computed: {
-    authOptions() {
-      return {headers: {Authorization: localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME)}}
-    }
-  },
   methods: {
     submit() {
-      const options = {
-        ...this.authOptions,
-        params: {code: this.query}
-      };
+      const options = {params: {code: this.query}};
       this.$axios
           .get("application", options)
           .then((xhr) => {
@@ -86,20 +78,14 @@ export default {
           });
     },
     approval() {
-      const options = {
-        ...this.authOptions,
-        params: {code: this.application.code}
-      };
+      const options = {params: {code: this.query}};
       this.$axios
           .patch("application", null, options)
           .then(() => this.application = {})
           .catch((error) => console.error((error)));
     },
     reject() {
-      const options = {
-        ...this.authOptions,
-        params: {code: this.application.code}
-      };
+      const options = {params: {code: this.query}};
       this.$axios
           .delete("application", options)
           .then(() => this.application = {})
