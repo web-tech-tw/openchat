@@ -9,7 +9,7 @@ import axios from "axios";
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 const config = {
-    baseURL: process.env.VUE_APP_SARA_RECV_HOST || '',
+    baseURL: process.env.VUE_APP_OPENCHAT_JOIN_HOST || '',
     timeout: 60 * 1000,
 };
 
