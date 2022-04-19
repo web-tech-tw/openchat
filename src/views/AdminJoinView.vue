@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-wrap w-full justify-center bg-sky-500 py-20">
-    <div v-if="ready">
+    <div v-if="access">
       <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg">
         <h2 class="text-gray-800 text-3xl font-semibold">檢查加入代碼</h2>
         <p class="mt-2 text-gray-600">請輸入申請人的加入代碼：</p>
@@ -43,8 +43,8 @@
         </p>
       </div>
     </div>
-    <div v-else>
-      存取遭拒
+    <div class="text-white" v-else>
+      {{ ready ? "存取遭拒" : "載入中..." }}
     </div>
   </div>
 </template>
@@ -53,6 +53,7 @@
 export default {
   name: "AdminJoinView",
   data: () => ({
+    access: false,
     ready: false,
     query: null,
     notice: null,
@@ -109,13 +110,15 @@ export default {
     this
         .$profile()
         .then((data) => {
-          if (data?.roles) {
-            this.ready = true;
+          this.ready = true;
+          if (Array.isArray(data?.roles) && data.roles.includes('openchat')) {
+            this.access = true;
           } else {
             console.log("forbidden")
           }
         })
         .catch((error) => {
+          this.ready = true;
           if (error?.response?.status === 401) {
             const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/join`;
             const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${refer}`;
