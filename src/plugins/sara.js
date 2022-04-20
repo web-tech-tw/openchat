@@ -5,9 +5,7 @@ import axios from "axios";
 
 const config = {
     baseURL: process.env.VUE_APP_SARA_RECV_HOST,
-    headers: {
-        Authorization: null
-    }
+    timeout: 60 * 1000,
 };
 
 const _client = axios.create(config);
