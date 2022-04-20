@@ -7,8 +7,9 @@ const extension = {
     install: (Vue) => {
         const options = {baseURL: process.env.VUE_APP_SARA_RECV_HOST, headers: {Authorization: null}};
         Vue.prototype.$profile = async () => {
+            const token = localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME);
+            if (!token) return null;
             try {
-                const token = localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME);
                 options.headers.Authorization = `SARA ${token}`;
                 const xhr = await axios.get('profile', options);
                 return xhr?.data?.profile || null;
@@ -17,6 +18,7 @@ const extension = {
                     localStorage.removeItem(process.env.VUE_APP_SARA_TOKEN_NAME);
                     location.reload();
                 }
+                return null;
             }
         }
     }
