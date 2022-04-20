@@ -32,12 +32,7 @@ _axios.interceptors.request.use(
 // Add a response interceptor
 _axios.interceptors.response.use(
     function (response) {
-        if ("sara-issue" in response?.headers) {
-            localStorage.setItem(
-                process.env.VUE_APP_SARA_TOKEN_NAME,
-                response.headers["sara-issue"]
-            );
-        }
+        // Do something with response data
         return response;
     },
     function (error) {
