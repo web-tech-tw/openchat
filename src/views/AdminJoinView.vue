@@ -15,7 +15,7 @@
             </svg>
           </button>
         </div>
-        <p class="mt-2 text-red-600" v-show="notice">{{ notice }}</p>
+        <p class="mt-2 text-red-600" v-show="status">{{ status }}</p>
       </div>
       <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg" v-show="application.code">
         <h2 class="text-gray-800 text-3xl font-semibold">
@@ -56,25 +56,30 @@ export default {
     access: false,
     ready: false,
     query: null,
-    notice: null,
+    status: null,
     application: {}
   }),
   methods: {
     submit() {
+      this.status = '';
+      if (!this.query) {
+        this.status = '請輸入資料';
+        return;
+      }
       const options = {params: {code: this.query}};
       this.$axios
           .get("application", options)
           .then((xhr) => {
             this.application = xhr.data;
-            this.notice = "";
+            this.status = "";
           })
           .catch((error) => {
             this.application = {};
             if (error?.response?.status !== 404) {
-              this.notice = "發生嚴重錯誤";
+              this.status = "發生嚴重錯誤";
               return;
             }
-            this.notice = "加入代碼不存在"
+            this.status = "加入代碼不存在"
           });
     },
     approval() {

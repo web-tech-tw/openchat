@@ -12,7 +12,7 @@
           <router-link to="/rule" class="text-red-500">社群守則</router-link>
           。
         </p>
-        <p class="mt-2 text-red-600" v-show="notice">{{ notice }}</p>
+        <p class="mt-2 text-red-600" v-show="status">{{ status }}</p>
         <p class="mt-2 text-gray-600" v-show="accept">
           請複製這份代碼，再貼上到OpenChat的審核答案內：
         </p>
@@ -71,7 +71,7 @@ export default {
       url: null
     },
     secret: null,
-    notice: null,
+    status: null,
     accept: false,
     loading: false
   }),
@@ -91,13 +91,13 @@ export default {
   methods: {
     copySecret() {
       if (!navigator.clipboard) {
-        this.notice = '您的瀏覽器不支援複製功能'
+        this.status = '您的瀏覽器不支援複製功能'
         return
       }
       navigator.clipboard
           .writeText(this.secret)
-          .then(() => this.notice = '已複製代碼')
-          .catch(() => this.notice = '無法複製代碼')
+          .then(() => this.status = '已複製代碼')
+          .catch(() => this.status = '無法複製代碼')
     },
     submit() {
       if (!this.accept) {
@@ -113,7 +113,7 @@ export default {
             })
             .catch((error) => {
               if (!error?.response?.data?.code) {
-                this.notice = '授權伺服器發生嚴重錯誤';
+                this.status = '授權伺服器發生嚴重錯誤';
                 return;
               }
               this.loading = false;
