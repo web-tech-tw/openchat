@@ -39,7 +39,7 @@
           </button>
         </div>
         <p class="mt-2 text-amber-600" v-else>
-          已由 {{ application.approval_by }} 於 {{ new Date(application.approval_at) }} 許可
+          已由 {{ application.approval_by }} 於 {{ new Date(application.approval_at * 1000) }} 許可
         </p>
       </div>
     </div>
@@ -81,7 +81,7 @@ export default {
       const options = {params: {code: this.query}};
       this.$axios
           .patch("application", null, options)
-          .then(() => this.application = {})
+          .then(() => this.submit())
           .catch((error) => console.error((error)));
     },
     reject() {
