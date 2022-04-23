@@ -32,6 +32,11 @@ const routes = [
     component: () => import('../views/AdminJoinView.vue')
   },
   {
+    path: '/admin/room',
+    name: 'admin-room',
+    component: () => import('../views/AdminRoomView.vue')
+  },
+  {
     path: '*',
     name: 'not-found',
     component: () => import('../views/NotFoundView.vue'),

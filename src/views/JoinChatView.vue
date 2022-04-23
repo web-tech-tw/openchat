@@ -18,15 +18,15 @@
         </p>
         <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md" v-show="accept">
           <input class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
-                 type="text" :value="secret" :disabled="loading">
-          <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret" :disabled="loading">
-            <svg v-show="loading" class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                 type="text" :value="secret" :disabled="!ready">
+          <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret" :disabled="!ready">
+            <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
                  fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <svg v-show="!loading" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+            <svg v-show="ready" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round"
                     d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
@@ -38,9 +38,9 @@
         <button
             class="flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
             @click="submit"
-            :disabled="loading"
+            :disabled="!ready"
         >
-          <svg v-show="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+          <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor"
@@ -73,7 +73,7 @@ export default {
     secret: null,
     status: null,
     accept: false,
-    loading: false
+    ready: false
   }),
   computed: {
     icon() {
@@ -83,9 +83,9 @@ export default {
     state() {
       return !this.accept ?
           "加入社群"
-          : this.loading
-              ? "載入中..."
-              : "前往OpenChat界面貼上代碼"
+          : this.ready
+              ? "前往OpenChat界面貼上代碼"
+              : "載入中..."
     }
   },
   methods: {
@@ -102,22 +102,22 @@ export default {
     submit() {
       if (!this.accept) {
         this.accept = true;
-        this.loading = true;
+        this.ready = false;
         const formData = new URLSearchParams();
         formData.set('slug', this.code);
         this.$axios
             .post('application', formData)
             .then((xhr) => {
-              this.loading = false;
+              this.ready = true;
               this.secret = xhr.data.code;
             })
             .catch((error) => {
-              if (!error?.response?.data?.code) {
+              this.ready = true;
+              if (error?.response?.data?.code) {
+                this.secret = error?.response?.data?.code;
+              } else {
                 this.status = '授權伺服器發生嚴重錯誤';
-                return;
               }
-              this.loading = false;
-              this.secret = error?.response?.data?.code;
             });
       } else {
         location.href = this.info.url;
