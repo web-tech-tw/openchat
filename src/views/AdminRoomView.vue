@@ -71,7 +71,7 @@ export default {
     this.profile = await this.$profile();
     if (!this.profile) {
       const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/room`;
-      const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${refer}`;
+      const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
       location.assign(url);
       return;
     }

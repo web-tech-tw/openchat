@@ -112,7 +112,7 @@ export default {
           this.ready = true;
           if (error?.response?.status === 401) {
             const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/join`;
-            const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${refer}`;
+            const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
             location.assign(url);
             return;
           }
