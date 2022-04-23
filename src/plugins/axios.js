@@ -19,7 +19,7 @@ _axios.interceptors.request.use(
     function (config) {
         const token = localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME);
         if (token) {
-            config.headers["authorization"] = `SARA ${token}`;
+            config.headers["Authorization"] = `SARA ${token}`;
         }
         return config;
     },
