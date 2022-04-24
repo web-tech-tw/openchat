@@ -73,7 +73,7 @@ export default {
     secret: null,
     status: null,
     accept: false,
-    ready: false
+    ready: true
   }),
   computed: {
     icon() {
