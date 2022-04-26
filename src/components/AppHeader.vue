@@ -111,6 +111,15 @@ export default {
           }
         },
         {
+          name: "社群管理",
+          type: "function",
+          icon: require("@/assets/images/icons/information-circle.svg"),
+          action: () => {
+            this.$router.push({name: "admin"})
+            this.menu_collapse.mobile_menu = false
+          }
+        },
+        {
           name: "回首頁",
           type: "function",
           icon: require("@/assets/images/icons/home.svg"),
