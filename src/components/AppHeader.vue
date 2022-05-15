@@ -113,7 +113,7 @@ export default {
         {
           name: "社群管理",
           type: "function",
-          icon: require("@/assets/images/icons/information-circle.svg"),
+          icon: require("@/assets/images/icons/shield-check.svg"),
           action: () => {
             this.$router.push({name: "admin"})
             this.menu_collapse.mobile_menu = false
