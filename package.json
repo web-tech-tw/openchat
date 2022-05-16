@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate-chat-qr": "node ./src/generate_chat_qr.js",
+    "generate-chats-qr": "node src/generate_chats_qr.js",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
