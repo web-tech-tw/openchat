@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate-chat-qr": "node ./src/generate_chat_qr.js",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -26,6 +27,8 @@
     "axios": "^0.26.1",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
+    "images": "^3.2.4",
+    "qrcode": "^1.5.0",
     "vue-cli-plugin-axios-x": "~0.1.5",
     "vue-cli-plugin-tailwind": "~3.0.0",
     "vue-template-compiler": "^2.6.14"
