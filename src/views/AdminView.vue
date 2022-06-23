@@ -4,10 +4,10 @@
       OpenChat 社群管理系統
     </div>
     <div class="flex justify-around my-5">
-      <router-link to="/admin/room" class="bg-sky-500 hover:bg-sky-600 text-white rounded px-4 px-4 py-2 font-semibold">
+      <router-link class="bg-sky-500 hover:bg-sky-600 text-white rounded px-4 px-4 py-2 font-semibold" to="/admin/room">
         加入管理層社群
       </router-link>
-      <router-link to="/admin/join" class="bg-sky-500 hover:bg-sky-600 text-white rounded px-4 px-4 py-2 font-semibold">
+      <router-link class="bg-sky-500 hover:bg-sky-600 text-white rounded px-4 px-4 py-2 font-semibold" to="/admin/join">
         檢查加入代碼
       </router-link>
     </div>
