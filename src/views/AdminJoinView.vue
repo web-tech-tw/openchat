@@ -97,27 +97,20 @@ export default {
           .catch((error) => console.error((error)));
     }
   },
-  created() {
-    this
-        .$profile()
-        .then((data) => {
-          this.ready = true;
-          if (Array.isArray(data?.roles) && data.roles.includes('openchat')) {
-            this.access = true;
-          } else {
-            console.log("forbidden")
-          }
-        })
-        .catch((error) => {
-          this.ready = true;
-          if (error?.response?.status === 401) {
-            const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/join`;
-            const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
-            location.assign(url);
-            return;
-          }
-          console.log("forbidden")
-        })
+  async created() {
+    this.profile = await this.$profile();
+    if (!this.profile) {
+      const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/join`;
+      const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
+      location.assign(url);
+      return;
+    }
+    this.ready = true;
+    if (Array.isArray(this.profile?.roles) && this.profile.roles.includes('openchat')) {
+      this.access = true;
+    } else {
+      console.log("forbidden")
+    }
   }
 }
 </script>
