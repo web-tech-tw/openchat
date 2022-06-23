@@ -12,7 +12,8 @@
         <p class="mt-2 text-gray-600">請輸入申請人的加入代碼：</p>
         <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
           <input v-model="query"
-                 class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none" placeholder="例如：000000" type="text" @keydown.enter="submit">
+                 class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
+                 placeholder="例如：000000" type="text" @keydown.enter="submit">
           <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="submit">
             <svg class="mt-1 h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                  xmlns="http://www.w3.org/2000/svg">
@@ -63,41 +64,43 @@ export default {
     application: {}
   }),
   methods: {
-    submit() {
+    async submit() {
       this.status = '';
       if (!this.query) {
         this.status = '請輸入資料';
         return;
       }
       const options = {params: {code: this.query}};
-      this.$axios
-          .get("application", options)
-          .then((xhr) => {
-            this.application = xhr.data;
-            this.status = "";
-          })
-          .catch((error) => {
-            this.application = {};
-            if (error?.response?.status !== 404) {
-              this.status = "發生嚴重錯誤";
-              return;
-            }
-            this.status = "加入代碼不存在"
-          });
+      try {
+        const xhr = await this.$axios.get("application", options);
+        this.application = xhr.data;
+        this.status = "";
+      } catch (e) {
+        this.application = {};
+        if (e?.response?.status !== 404) {
+          this.status = "發生嚴重錯誤";
+          return;
+        }
+        this.status = "加入代碼不存在"
+      }
     },
-    approval() {
+    async approval() {
       const options = {params: {code: this.query}};
-      this.$axios
-          .patch("application", null, options)
-          .then(() => this.submit())
-          .catch((error) => console.error((error)));
+      try {
+        await this.$axios.patch("application", null, options)
+        await this.submit()
+      } catch (e) {
+        console.error(e)
+      }
     },
-    reject() {
+    async reject() {
       const options = {params: {code: this.query}};
-      this.$axios
-          .delete("application", options)
-          .then(() => this.application = {})
-          .catch((error) => console.error((error)));
+      try {
+        await this.$axios.delete("application", null, options)
+        this.application = {}
+      } catch (e) {
+        console.error(e)
+      }
     }
   },
   async created() {

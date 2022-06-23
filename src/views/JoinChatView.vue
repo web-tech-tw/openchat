@@ -18,18 +18,23 @@
         </p>
         <div v-show="accept" class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
           <input :disabled="!ready"
-                 :value="secret" class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none" type="text">
+                 :value="secret"
+                 class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
+                 type="text">
           <button :disabled="!ready" class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret">
             <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none"
                  viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              <path class="opacity-75"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     fill="currentColor"></path>
             </svg>
             <svg v-show="ready" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"
                  viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" stroke-linecap="round"
-                    stroke-linejoin="round"/>
+              <path
+                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
             </svg>
           </button>
         </div>
@@ -43,7 +48,8 @@
           <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none"
                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            <path class="opacity-75"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   fill="currentColor"></path>
           </svg>
           {{ state }}
@@ -99,26 +105,25 @@ export default {
           .then(() => this.status = '已複製代碼')
           .catch(() => this.status = '無法複製代碼')
     },
-    submit() {
+    async submit() {
       if (!this.accept) {
         this.accept = true;
         this.ready = false;
-        const formData = new URLSearchParams();
-        formData.set('slug', this.code);
-        this.$axios
-            .post('application', formData)
-            .then((xhr) => {
-              this.ready = true;
-              this.secret = xhr.data.code;
-            })
-            .catch((error) => {
-              this.ready = true;
-              if (error?.response?.data?.code) {
-                this.secret = error?.response?.data?.code;
-              } else {
-                this.status = '授權伺服器發生嚴重錯誤';
-              }
-            });
+        const form = new URLSearchParams();
+        form.set('slug', this.code);
+        try {
+          const xhr = await this.$axios.post('application', form)
+          this.ready = true;
+          this.secret = xhr.data.code;
+        } catch (e) {
+          if (e?.response?.data?.code) {
+            this.secret = e?.response?.data?.code;
+          } else {
+            this.status = '授權伺服器發生嚴重錯誤';
+          }
+        } finally {
+          this.ready = true;
+        }
       } else {
         location.href = this.info.url;
       }
