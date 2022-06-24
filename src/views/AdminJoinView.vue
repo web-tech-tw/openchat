@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-wrap w-full justify-center bg-sky-500 py-20">
-    <div v-if="ready" class="text-white">
+    <div v-if="!ready" class="text-white">
       載入中...
     </div>
     <div v-else-if="!access" class="text-white">

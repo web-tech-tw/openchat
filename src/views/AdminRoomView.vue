@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-wrap w-full justify-center bg-sky-500 py-20">
-    <div v-if="ready" class="text-white">
+    <div v-if="!ready" class="text-white">
       載入中...
     </div>
     <div v-else-if="!access" class="text-white">
@@ -12,18 +12,10 @@
         <p class="mt-2 text-gray-600">你好，{{ profile.nickname }}，這裡是加入密碼：</p>
         <p v-show="status" class="mt-2 text-red-600">{{ status }}</p>
         <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
-          <input :disabled="!ready"
-                 :value="password"
+          <input :value="password"
                  class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
                  type="text">
-          <button :disabled="!ready" class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret">
-            <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none"
-                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    fill="currentColor"></path>
-            </svg>
+          <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret">
             <svg v-show="ready" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"
                  viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -38,13 +30,6 @@
               :href="url"
               class="flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
           >
-            <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none"
-                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    fill="currentColor"></path>
-            </svg>
             加入連結在這裡
           </a>
         </div>
