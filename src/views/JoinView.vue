@@ -4,7 +4,7 @@
     <div class="container mb-2 flex mx-auto w-full items-center justify-center">
       <ul class="flex flex-col p-4">
         <li v-for="(i, j) in data" :key="j" class="border-gray-400 flex flex-row mb-2">
-          <div class="rounded-md flex flex-1 items-center p-4 rounded-2xl border-2 p-6 mt-3 border-sky-400">
+          <div class="rounded-md flex flex-1 items-center p-4 border-2 mt-3 border-sky-400">
             <div class="flex-1 pl-1 mr-16">
               <div class="font-medium">{{ i.name }}</div>
             </div>

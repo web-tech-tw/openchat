@@ -16,12 +16,12 @@
         <p v-show="accept" class="mt-2 text-gray-600">
           請複製這份代碼，再貼上到OpenChat的審核答案內：
         </p>
-        <div v-show="accept" class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
+        <div v-show="accept" class="w-full mt-2 text-gray-600 flex rounded bg-white shadow-md">
           <input :disabled="!ready"
                  :value="secret"
                  class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
                  type="text">
-          <button :disabled="!ready" class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret">
+          <button :disabled="!ready" class="m-2 rounded px-4 py-2 font-semibold" @click="copySecret">
             <svg v-show="!ready" class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none"
                  viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

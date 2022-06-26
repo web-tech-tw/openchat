@@ -11,11 +11,11 @@
         <h2 class="text-gray-800 text-3xl font-semibold">加入管理層社群</h2>
         <p class="mt-2 text-gray-600">你好，{{ profile.nickname }}，這裡是加入密碼：</p>
         <p v-show="status" class="mt-2 text-red-600">{{ status }}</p>
-        <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
+        <div class="w-full mt-2 text-gray-600 flex rounded bg-white shadow-md">
           <input :value="password"
                  class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
                  type="text">
-          <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="copySecret">
+          <button class="m-2 rounded px-4 py-2 font-semibold" @click="copySecret">
             <svg v-show="ready" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"
                  viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -64,7 +64,7 @@ export default {
   async created() {
     this.profile = await this.$profile();
     if (!this.profile) {
-      const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/room`;
+      const refer = `${process.env.VUE_APP_WEBSITE_URL}/openchat/#/admin/room`;
       const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
       location.assign(url);
       return;

@@ -10,11 +10,11 @@
       <div class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg">
         <h2 class="text-gray-800 text-3xl font-semibold">檢查加入代碼</h2>
         <p class="mt-2 text-gray-600">請輸入申請人的加入代碼：</p>
-        <div class="w-full mt-2 text-gray-600 flex rounded bg-white w-auto shadow-md">
+        <div class="w-full mt-2 text-gray-600 flex rounded bg-white shadow-md">
           <input v-model="query"
                  class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
                  placeholder="例如：000000" type="text" @keydown.enter="submit">
-          <button class="m-2 rounded px-4 px-4 py-2 font-semibold" @click="submit">
+          <button class="m-2 rounded px-4 py-2 font-semibold" @click="submit">
             <svg class="mt-1 h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                  xmlns="http://www.w3.org/2000/svg">
               <path d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
@@ -106,7 +106,7 @@ export default {
   async created() {
     this.profile = await this.$profile();
     if (!this.profile) {
-      const refer = `${process.env.VUE_APP_OPENCHAT_JOIN_HOST}/#/admin/join`;
+      const refer = `${process.env.VUE_APP_WEBSITE_URL}/openchat/#/admin/join`;
       const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
       location.assign(url);
       return;
