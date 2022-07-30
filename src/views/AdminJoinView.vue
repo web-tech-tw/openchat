@@ -106,7 +106,7 @@ export default {
   async created() {
     this.profile = await this.$profile();
     if (!this.profile) {
-      const refer = `${process.env.VUE_APP_WEBSITE_URL}/openchat/#/admin/join`;
+      const refer = `${process.env.VUE_APP_SELF_HOST}/#/admin/join`;
       const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
       location.assign(url);
       return;
