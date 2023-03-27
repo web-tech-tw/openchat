@@ -96,7 +96,7 @@ export default {
     async reject() {
       const options = {params: {code: this.query}};
       try {
-        await this.$axios.delete("application", null, options)
+        await this.$axios.delete("application", options)
         this.application = {}
       } catch (e) {
         console.error(e)
