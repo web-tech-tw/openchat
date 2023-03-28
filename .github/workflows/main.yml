@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Main workflow
 
 on:
   push:
@@ -9,16 +9,20 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3
+      - name: Specific Node.js version 🦄
+        uses: actions/setup-node@v3
         with:
           node-version: 16
+
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1
+
       - name: Install and Build
         run: |
           npm install
           npm run generate-chats-qr
           npm run build
+
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
