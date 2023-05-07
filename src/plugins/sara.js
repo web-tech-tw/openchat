@@ -46,7 +46,7 @@ const extension = {
         Vue.prototype.$profile = async () => {
             if (!localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME)) return null;
             try {
-                const xhr = await _client.get('profile');
+                const xhr = await _client.get('/users/me');
                 return xhr?.data?.profile || false;
             } catch (e) {
                 if (e?.response?.status === 401) {
