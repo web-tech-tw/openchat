@@ -25,13 +25,46 @@
         <p v-show="status" class="mt-2 text-red-600">{{ status }}</p>
       </div>
       <div v-show="application.code" class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg">
-        <h2 class="text-gray-800 text-3xl font-semibold">
+        <h2 class="text-gray-800 text-3xl font-semibold mb-3">
           加入代碼：{{ application.code }}
         </h2>
         <p class="mt-2 text-gray-600">
-          使用者代碼：{{ application.user_agent }}<br/>
-          IP 位址：{{ application.ip_address }}<br/>
-          申請時間：{{ new Date(application.created_at * 1000) }}
+          <ul class="mb-3">
+            <li>申請時間：{{ dateParsedCreatedAt }}</li>
+          </ul>
+          <ul class="mb-3">
+            <li>IP 位址：{{ application.ip_address }}</li>
+            <li>IP 地理資訊：
+              <ul class="pl-3">
+                <li>國家：{{ application.ip_geolocation.country }}</li>
+                <li>城市：{{ application.ip_geolocation.city }}</li>
+                <li>時區：{{ application.ip_geolocation.timezone }}</li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="mb-3">
+            <li>使用者裝置資訊：
+              <ul class="pl-3">
+                <li>作業系統：
+                  <ul class="pl-3">
+                    <li>名稱：{{ uaParsed.os.name }}</li>
+                    <li>版本：{{ uaParsed.os.version }}</li>
+                  </ul>
+                </li>
+                <li>瀏覽器：
+                  <ul class="pl-3">
+                    <li>名稱：{{ uaParsed.browser.name }}</li>
+                    <li>版本：{{ uaParsed.browser.version }}</li>
+                    <li>使用者代理：
+                      <p class="pl-3">
+                        <code>{{ uaParsed.ua }}</code>
+                      </p>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
         </p>
         <div v-if="!application.approval_by" class="flex justify-end mt-4">
           <button
@@ -46,7 +79,7 @@
           </button>
         </div>
         <p v-else class="mt-2 text-amber-600">
-          已由 {{ application.approval_by }} 於 {{ new Date(application.approval_at * 1000) }} 許可
+          已由 {{ application.approval_by }} 於 {{ dateParsedApprovalAt }} 許可
         </p>
       </div>
     </div>
@@ -54,6 +87,17 @@
 </template>
 
 <script>
+import uaParser from "ua-parser-js";
+
+import dayjs from "dayjs";
+import dayjsUtc from "dayjs/plugin/utc";
+import dayjsTimezone from "dayjs/plugin/timezone";
+import dayjsLocalizedFormat from "dayjs/plugin/localizedFormat";
+
+dayjs.extend(dayjsUtc);
+dayjs.extend(dayjsTimezone);
+dayjs.extend(dayjsLocalizedFormat);
+
 export default {
   name: "AdminJoinView",
   data: () => ({
@@ -64,6 +108,10 @@ export default {
     application: {}
   }),
   methods: {
+    dateToHuman(timestamp) {
+      const userTimezone = dayjs.tz.guess();
+      return dayjs.tz(timestamp, userTimezone).format("llll");
+    },
     async submit() {
       this.status = '';
       if (!this.query) {
@@ -102,6 +150,30 @@ export default {
         console.error(e)
       }
     }
+  },
+  computed: {
+    uaParsed() {
+      const {
+        user_agent: uaString,
+      } = this.application;
+      return uaParser(uaString);
+    },
+    dateParsedCreatedAt() {
+      const {
+        created_at: createdAt,
+      } = this.application;
+      return this.dateToHuman(
+        createdAt * 1000,
+      );
+    },
+    dateParsedApprovalAt() {
+      const {
+        approval_at: approvalAt,
+      } = this.application;
+      return this.dateToHuman(
+        approvalAt * 1000,
+      );
+    },
   },
   async created() {
     this.profile = await this.$profile();
