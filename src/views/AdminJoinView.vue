@@ -24,7 +24,7 @@
         </div>
         <p v-show="status" class="mt-2 text-red-600">{{ status }}</p>
       </div>
-      <div v-show="application.code" class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg">
+      <div v-if="application.code" class="max-w-md mx-3 my-5 py-4 px-8 bg-white shadow-lg rounded-lg">
         <h2 class="text-gray-800 text-3xl font-semibold mb-3">
           加入代碼：{{ application.code }}
         </h2>
