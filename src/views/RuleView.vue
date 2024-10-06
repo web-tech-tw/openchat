@@ -29,7 +29,7 @@
           <p>程式碼片段筆記平台：</p>
           <ul>
             <li>
-              <a href="https://web-tech-tw.github.io/chew">Chew 口香糖</a>
+              <a href="https://web-tech.tw/chew">Chew 口香糖</a>
             </li>
             <li>
               <a href="https://pastebin.com">Pastebin</a>
