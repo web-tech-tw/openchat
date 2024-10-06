@@ -1,37 +1,37 @@
 {
   "research": {
-    "name": "資訊安全&程式設計&Web技術 研究社群",
-    "description": "console.log(\"Hello World!\");\n\n歡迎來到程式的世界，這裡有各式各樣類型的開發者。\n\n從網路工程到機器學習，歡迎彼此互相切磋及探討相關問題。",
+    "name": "Taiwan Web Technology Promotion 臺灣網際網路技術推廣",
+    "description": "console.log(\"Hello World!\");\n\n歡迎來到程式的世界，這裡有各式各樣類型的開發者。\n從網路工程到機器學習：什麼都有，什麼都不奇怪！\n\n歡迎彼此互相切磋及探討相關問題～",
     "url": "https://line.me/ti/g2/lPx3ICiyRmK_igae77rMpw",
     "page_url": "https://ncurl.xyz/s/-73eAWQng"
   },
   "line-dev": {
     "name": "LINE Developers (Community)",
-    "description": "LINE開發者社群，你是LINE Developer嗎？\n\n歡迎您的加入！這裡是非官方的OpenChat社群，為即時與開發者們互動所打造，歡迎各位的加入！",
+    "description": "LINE開發者社群，你是LINE Developer嗎？\n歡迎您的加入！這裡是非官方的OpenChat社群，\n為即時與開發者們互動所打造，歡迎各位的加入！",
     "url": "https://line.me/ti/g2/Fi11VhNE7XDI0MPmxxbnoA",
     "page_url": "https://ncurl.xyz/s/RTV21KQ7R"
   },
   "php-tw": {
-    "name": "PHP Taiwan",
-    "description": "專屬PHP的社群",
+    "name": "PHP Plus 社群",
+    "description": "專屬 PHP 的社群，\n你也是爆肝 PHP 工程師嗎？\n\n歡迎：\n新人入坑啊哩刪，舊人一起扶屎山 _(´ཀ`」 ∠)\n\n一袋米要扛幾樓（ry",
     "url": "https://line.me/ti/g2/rQT19HAbBoQJ12FBMqsMAA",
     "page_url": "https://ncurl.xyz/s/W-SNBFQnR"
   },
   "vue-tw": {
-    "name": "Vue.js Taiwan",
-    "description": "只有Vue.js",
+    "name": "Vue.js Plus 社群",
+    "description": "漸進式框架 Vue.js 的專屬社群！\n\n專為前端開發者打造，專注研究 Vue.js 工具鍊，\n分享最先進與最專業的 Vue.js 與前端網頁技術資訊。\n\n（雖然平常時好像都在聊吃的笑死）",
     "url": "https://line.me/ti/g2/J7bTfoHgmfgc42C9baJNs2gwH00kAMd9QfJDsQ",
     "page_url": "https://ncurl.xyz/s/vJS7bZQng"
   },
   "linux-tw": {
-    "name": "Linux Taiwan",
-    "description": "攜手共創 Linux 的美好未來，透過集思廣益和協同合作，\n讓它的力量惠及每個人，讓創新無界限，讓科技造福更多人。",
+    "name": "Linux Plus 社群",
+    "description": "共創基於 Linux 的美好未來！\n\n透過集思廣益和協同合作，\n讓它的力量惠及每個人。\n\n讓創新無界限，讓科技造福更多人！",
     "url": "https://line.me/ti/g2/-7-znfYtaxfHuJi7Nm8H-8WzUPoWeFngnSI7XQ",
     "page_url": "https://ncurl.xyz/s/mxg-5FySR"
   },
   "ai-tw": {
-    "name": "Artificial Intelligence 人工智慧",
-    "description": "攜手探索 AI 的無限可能，\n透過創新與合作，\n打造一個智慧化、人機共榮的未來。",
+    "name": "Artificial Intelligence Plus 社群",
+    "description": "攜手探索 AI 的無限可能，\n透過創新與合作，\n打造一個智慧化、人機共榮的未來！",
     "url": "https://line.me/ti/g2/GFtuLBRsUlrS9dKHuPS-ThMNj3dzqh8kfobU6w",
     "page_url": "https://ncurl.xyz/s/wPDojAySg"
   }

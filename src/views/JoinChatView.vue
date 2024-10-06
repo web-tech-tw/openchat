@@ -6,8 +6,8 @@
       </div>
       <div>
         <h2 class="text-gray-800 text-3xl font-semibold">{{ info.name }}</h2>
-        <p v-show="!accept" class="mt-2 text-gray-600">{{ info.description }}</p>
-        <p v-show="!accept" class="mt-2 text-amber-500">
+        <p v-show="!accept" class="mt-6 text-gray-600" v-html="description"></p>
+        <p v-show="!accept" class="mt-6 text-amber-600">
           加入社群，即代表您同意遵守我們的
           <router-link class="text-red-500" to="/rule">社群守則</router-link>
           。
@@ -90,6 +90,9 @@ export default {
     icon() {
       if (!this.code) return null;
       return `${process.env.BASE_URL}static/images/chats/${this.code}.jpg`;
+    },
+    description() {
+      return this.info.description.replaceAll("\n", "<br />")
     },
     state() {
       return !this.accept ?
