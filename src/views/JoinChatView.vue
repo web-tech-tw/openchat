@@ -39,6 +39,9 @@
           </button>
         </div>
       </div>
+      <div v-show="!accept" class="checkbox my-3">
+        <div id="captcha" data-theme="light"></div>
+      </div>
       <div class="flex justify-end mt-4">
         <button
             :disabled="!ready"
@@ -76,10 +79,12 @@ export default {
       description: null,
       url: null
     },
+    captcha: null,
     secret: null,
     status: null,
     accept: false,
-    ready: true
+    ready: true,
+    turnstileScript: null,
   }),
   computed: {
     icon() {
@@ -111,6 +116,7 @@ export default {
         this.ready = false;
         const form = new URLSearchParams();
         form.set('slug', this.code);
+        form.set('captcha', this.captcha);
         try {
           const xhr = await this.$axios.post('application', form)
           this.ready = true;
@@ -129,7 +135,24 @@ export default {
       }
     }
   },
+  mounted() {
+    document.head.appendChild(this.turnstileScript);
+  },
+  beforeDestroy() {
+    document.head.removeChild(this.turnstileScript);
+  },
   created() {
+    const turnstileScriptUrl = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=loadTurnstile";
+    this.turnstileScript = document.createElement("script");
+    this.turnstileScript.setAttribute("src", turnstileScriptUrl);
+    window.loadTurnstile = () => {
+      window.turnstile.render("#captcha", {
+        sitekey: process.env.VUE_APP_TURNSTILE_SITE_KEY,
+        callback: (token) => {
+          this.captcha = token;
+        },
+      });
+    };
     if (this.code in data) {
       this.info = data[this.code];
     } else {
