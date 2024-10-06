@@ -119,6 +119,7 @@ export default {
 
         this.accept = true;
         this.ready = false;
+        this.status = "";
         const form = new URLSearchParams();
         form.set('slug', this.code);
         form.set('captcha', this.captcha);
