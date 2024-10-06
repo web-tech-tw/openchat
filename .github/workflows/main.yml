@@ -15,7 +15,7 @@ jobs:
           node-version: 16
 
       - name: Checkout 🛎️
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3
 
       - name: Install and Build
         run: |
@@ -24,7 +24,12 @@ jobs:
           npm run build
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages
+          branch: dist-pages
           folder: dist
+
+      - name: Webhook 📲
+        uses: wei/curl@master
+        with:
+          args: ${{ vars.DEPLOY_WEBHOOK_URL }}?secret=${{ secrets.DEPLOY_WEBHOOK_SECRET }}
