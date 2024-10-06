@@ -112,6 +112,11 @@ export default {
     },
     async submit() {
       if (!this.accept) {
+        if (!this.captcha) {
+          this.status = '尚未完成系統驗證';
+          return;
+        }
+
         this.accept = true;
         this.ready = false;
         const form = new URLSearchParams();
