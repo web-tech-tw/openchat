@@ -189,7 +189,7 @@ export default {
     ) {
       this.access = true;
     } else {
-      console.log("forbidden")
+      console.warn("Forbidden")
     }
     this.ready = true;
   }

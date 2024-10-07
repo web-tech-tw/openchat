@@ -75,7 +75,8 @@ export default {
     ) {
       this.access = true;
     } else {
-      console.log("forbidden")
+      console.warn("Forbidden");
+      this.ready = true;
       return;
     }
     try {
@@ -83,9 +84,8 @@ export default {
       this.url = xhr.data.url;
       this.password = xhr.data.password;
     } catch (error) {
-      if (!error?.response?.data?.code) {
-        this.status = '授權伺服器發生嚴重錯誤';
-      }
+      this.status = '授權伺服器發生嚴重錯誤';
+      console.error(error);
     } finally {
       this.ready = true;
     }
