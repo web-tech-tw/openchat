@@ -32,7 +32,7 @@ axiosClient.interceptors.request.use(
             zebraToken = nanoid();
             localStorage.setItem(zebraTokenName, zebraToken);
         }
-        config.headers["X-OCJI-Zebra"] = zebraToken;
+        config.headers["X-Zebra-Code"] = zebraToken;
 
         const saraToken = localStorage.getItem(saraTokenName);
         if (!saraToken) {
