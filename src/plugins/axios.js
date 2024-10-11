@@ -27,19 +27,19 @@ const axiosClient = axios.create(config);
 axiosClient.interceptors.request.use(
     // Do something before request is sent
     (config) => {
-        const saraToken = localStorage.getItem(saraTokenName);
-        if (!saraToken) {
-            return config
-        }
-
         let zebraToken = localStorage.getItem(zebraTokenName);
         if (!zebraToken) {
             zebraToken = nanoid();
             localStorage.setItem(zebraTokenName, zebraToken);
         }
-
-        config.headers["Authorization"] = `SARA ${saraToken}`;
         config.headers["X-OCJI-Zebra"] = zebraToken;
+
+        const saraToken = localStorage.getItem(saraTokenName);
+        if (!saraToken) {
+            return config
+        }
+        config.headers["Authorization"] = `SARA ${saraToken}`;
+
         return config;
     },
     // Do something with request error
