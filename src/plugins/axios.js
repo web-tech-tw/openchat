@@ -9,8 +9,8 @@ import {
 
 const {
     VUE_APP_OCJI_HOST: ocjiRecvHost,
-    VUE_APP_OCJI_ZEBRA_TOKEN_NAME: zebraTokenName,
     VUE_APP_SARA_TOKEN_NAME: saraTokenName,
+    VUE_APP_ZEBRA_TOKEN_NAME: zebraTokenName,
 } = process.env;
 
 // Full config:  https://github.com/axios/axios#request-config
