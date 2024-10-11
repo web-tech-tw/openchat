@@ -1,65 +1,56 @@
 "use strict";
 
-import Vue from 'vue';
+import Vue from "vue";
 import axios from "axios";
 
+const {
+    VUE_APP_OCJI_HOST: ocjiRecvHost,
+    VUE_APP_SARA_TOKEN_NAME: saraTokenName,
+} = process.env;
+
 // Full config:  https://github.com/axios/axios#request-config
-// axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
-// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+// axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || "";
+// axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
 
 const config = {
-    baseURL: process.env.VUE_APP_OCJI_HOST || '',
+    baseURL: ocjiRecvHost,
     timeout: 60 * 1000,
 };
 
-const _axios = axios.create(config);
+const axiosClient = axios.create(config);
 
-_axios.interceptors.request.use(
-    function (config) {
-        const token = localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME);
-        if (token) {
-            config.headers["Authorization"] = `SARA ${token}`;
+axiosClient.interceptors.request.use(
+    // Do something before request is sent
+    (config) => {
+        const saraToken = localStorage.getItem(saraTokenName);
+        if (!saraToken) {
+            return config
         }
+
+        config.headers["Authorization"] = `SARA ${saraToken}`;
         return config;
     },
-    function (error) {
-        // Do something with request error
-        return Promise.reject(error);
-    }
+    // Do something with request error
+    (error) => Promise.reject(error),
 );
 
 // Add a response interceptor
-_axios.interceptors.response.use(
-    function (response) {
-        // Do something with response data
-        return response;
-    },
-    function (error) {
-        // Do something with response error
-        return Promise.reject(error);
-    }
+axiosClient.interceptors.response.use(
+    // Do something with response data
+    (response) => response,
+    // Do something with response error
+    (error) => Promise.reject(error),
 );
 
 const extension = {
     install: (Vue) => {
-        Vue.axios = _axios;
-        window.axios = _axios;
-        Object.defineProperties(Vue.prototype, {
-            axios: {
-                get() {
-                    return _axios;
-                }
-            },
-            $axios: {
-                get() {
-                    return _axios;
-                }
-            },
-        });
-    }
-}
+        window.axios = axiosClient;
+        Vue.axios = axiosClient;
+        Vue.prototype.axios = axiosClient;
+        Vue.prototype.$axios = axiosClient;
+    },
+};
 
-Vue.use(extension)
+Vue.use(extension);
 
 export default extension;

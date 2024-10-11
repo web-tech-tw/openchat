@@ -3,62 +3,87 @@
 import Vue from "vue";
 import axios from "axios";
 
+const {
+    VUE_APP_SARA_RECV_HOST: saraRecvHost,
+    VUE_APP_SARA_TOKEN_NAME: saraTokenName,
+} = process.env;
+
+// Full config:  https://github.com/axios/axios#request-config
+// axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || "";
+// axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+
 const config = {
-    baseURL: process.env.VUE_APP_SARA_RECV_HOST,
+    baseURL: saraRecvHost,
     timeout: 60 * 1000,
 };
 
-const _client = axios.create(config);
+const axiosClient = axios.create(config);
 
-_client.interceptors.request.use(
-    function (config) {
-        const token = localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME);
-        if (token) {
-            config.headers["Authorization"] = `SARA ${token}`;
+axiosClient.interceptors.request.use(
+    // Do something before request is sent
+    (config) => {
+        const saraToken = localStorage.getItem(saraTokenName);
+        if (!saraToken) {
+            return config
         }
+
+        config.headers["Authorization"] = `SARA ${saraToken}`;
         return config;
     },
-    function (error) {
-        // Do something with request error
-        return Promise.reject(error);
-    }
+    // Do something with request error
+    (error) => Promise.reject(error),
 );
 
-_client.interceptors.response.use(
-    function (response) {
-        if ("sara-issue" in response?.headers) {
-            localStorage.setItem(
-                process.env.VUE_APP_SARA_TOKEN_NAME,
-                response.headers["sara-issue"]
-            );
+// Add a response interceptor
+axiosClient.interceptors.response.use(
+    // Do something with response data
+    (response) => {
+        const newSaraToken = response.headers["sara-issue"];
+        if (!newSaraToken) {
+            return response;
         }
+
+        localStorage.setItem(saraTokenName, newSaraToken);
         return response;
     },
-    function (error) {
-        // Do something with response error
-        return Promise.reject(error);
-    }
+    // Do something with response error
+    (error) => Promise.reject(error),
 );
+
+const getProfile = async () => {
+    if (!localStorage.getItem(saraTokenName)) {
+        return null;
+    }
+
+    try {
+        const xhr = await axiosClient.get('/users/me');
+        return xhr?.data?.profile || false;
+    } catch (e) {
+        if (e?.response?.status !== 401) {
+            console.warn(e);
+            return null;
+        }
+
+        localStorage.removeItem(saraTokenName);
+        location.reload();
+        return null;
+    }
+};
 
 const extension = {
     install: (Vue) => {
-        Vue.prototype.$sara = _client;
-        Vue.prototype.$profile = async () => {
-            if (!localStorage.getItem(process.env.VUE_APP_SARA_TOKEN_NAME)) return null;
-            try {
-                const xhr = await _client.get('/users/me');
-                return xhr?.data?.profile || false;
-            } catch (e) {
-                if (e?.response?.status === 401) {
-                    localStorage.removeItem(process.env.VUE_APP_SARA_TOKEN_NAME);
-                    location.reload();
-                }
-                return false;
-            }
-        }
-    }
-}
+        window.sara = axiosClient;
+        Vue.sara = axiosClient;
+        Vue.prototype.sara = axiosClient;
+        Vue.prototype.$sara = axiosClient;
 
-Vue.use(extension)
+        window.profile = getProfile;
+        Vue.profile = getProfile;
+        Vue.prototype.profile = getProfile;
+        Vue.prototype.$profile = getProfile;
+    },
+};
+
+Vue.use(extension);
 
 export default extension;

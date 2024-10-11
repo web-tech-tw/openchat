@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate-chats-qr": "node src/generate_chats_qr.js",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "generate-chats-qr": "node src/generate_chats_qr.js"
   },
   "dependencies": {
     "autoprefixer": "^10",
@@ -15,7 +15,7 @@
     "postcss": "^8",
     "tailwindcss": "^3",
     "ua-parser-js": "^1.0.38",
-    "vue": "^2.6.14",
+    "vue": "^2.7.16",
     "vue-router": "^3.5.1"
   },
   "devDependencies": {
@@ -26,14 +26,14 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
-    "axios": "^0.26.1",
+    "axios": "^1.7.7",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "images": "^3.2.4",
     "qrcode": "^1.5.0",
-    "vue-cli-plugin-axios-x": "~0.1.5",
+    "vue-cli-plugin-axios-x": "~0.2.6",
     "vue-cli-plugin-tailwind": "~3.0.0",
-    "vue-template-compiler": "^2.6.14"
+    "vue-template-compiler": "^2.7.16"
   },
   "eslintConfig": {
     "root": true,
