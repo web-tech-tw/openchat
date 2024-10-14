@@ -237,7 +237,7 @@ export default {
   },
   async created() {
     document.addEventListener('click', this.handleDocumentClick);
-    this.profile = await this.$profile();
+    this.profile = this.$profile();
   },
   methods: {
     openMenu(item) {
