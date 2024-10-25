@@ -51,7 +51,15 @@ axiosClient.interceptors.response.use(
     // Do something with response data
     (response) => response,
     // Do something with response error
-    (error) => Promise.reject(error),
+    (error) => {
+        if (error.response.status === 401) {
+            localStorage.removeItem(saraTokenName);
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        }
+        return Promise.reject(error);
+    },
 );
 
 const extension = {
