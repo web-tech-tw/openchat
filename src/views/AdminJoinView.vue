@@ -79,7 +79,7 @@
           </button>
         </div>
         <p v-else class="mt-2 text-amber-600">
-          已由 {{ application.commitBy }} 於 {{ dateParsedApprovalAt }} 簽署 {{ application.commitState ? '許可' : '否決' }}
+          已由 {{ commitBy }} 於 {{ dateParsedCommitAt }} 簽署 {{ application.commitState ? '許可' : '否決' }}
         </p>
       </div>
     </div>
@@ -105,12 +105,20 @@ export default {
     ready: false,
     query: null,
     status: null,
+    commitBy: null,
     application: {}
   }),
   methods: {
     dateToHuman(timestamp) {
       const userTimezone = dayjs.tz.guess();
       return dayjs.tz(timestamp, userTimezone).format("llll");
+    },
+    async getUserNickname(commitBy) {
+      const xhr = await this.$axios.get(`https://web-tech.tw/recv/sara/users/${commitBy}`);
+      if (xhr.status !== 200) {
+        return commitBy;
+      }
+      return xhr?.data?.profile?.nickname || commitBy;
     },
     async submit() {
       this.status = '';
@@ -122,6 +130,11 @@ export default {
       try {
         const xhr = await this.$axios.get("applications", options);
         this.application = xhr.data;
+        const {commitBy} = this.application;
+        if (commitBy) {
+          this.commitBy = await this.getUserNickname(commitBy);
+          return;
+        }
         this.status = "";
       } catch (e) {
         this.application = {};
@@ -172,7 +185,7 @@ export default {
         createdAt,
       );
     },
-    dateParsedApprovalAt() {
+    dateParsedCommitAt() {
       const {
         commitAt,
       } = this.application;
