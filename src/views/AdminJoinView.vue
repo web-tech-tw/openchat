@@ -120,7 +120,7 @@ export default {
       }
       const options = {params: {code: this.query}};
       try {
-        const xhr = await this.$axios.get("application", options);
+        const xhr = await this.$axios.get("applications", options);
         this.application = xhr.data;
         this.status = "";
       } catch (e) {
