@@ -1,6 +1,6 @@
 <template>
   <div class="my-9 flex justify-center mx-5">
-    <div class="prose lg:prose-xl">
+    <div class="prose">
       <h1>OpenChat Hub 規範</h1>
       <p>
         本規範已於台北時間 2022年11月5日 上午1點2分 更新，煩請您詳細閱讀。
