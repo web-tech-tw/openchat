@@ -127,7 +127,7 @@ export default {
         form.set('slug', this.code);
         form.set('captcha', this.captcha);
         try {
-          const xhr = await this.$axios.post('application', form)
+          const xhr = await this.$axios.post("applications", form)
           this.ready = true;
           this.secret = xhr.data.code;
         } catch (e) {

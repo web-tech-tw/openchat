@@ -33,12 +33,12 @@
             <li>申請時間：{{ dateParsedCreatedAt }}</li>
           </ul>
           <ul class="mb-3">
-            <li>IP 位址：{{ application.ip_address }}</li>
+            <li>IP 位址：{{ application.ipAddress }}</li>
             <li>IP 地理資訊：
               <ul class="pl-3">
-                <li>國家：{{ application.ip_geolocation.country }}</li>
-                <li>城市：{{ application.ip_geolocation.city }}</li>
-                <li>時區：{{ application.ip_geolocation.timezone }}</li>
+                <li>國家：{{ application.ipGeolocation.country }}</li>
+                <li>城市：{{ application.ipGeolocation.city }}</li>
+                <li>時區：{{ application.ipGeolocation.timezone }}</li>
               </ul>
             </li>
           </ul>
@@ -66,7 +66,7 @@
             </li>
           </ul>
         </p>
-        <div v-if="!application.approval_by" class="flex justify-end mt-4">
+        <div v-if="!application.commitBy" class="flex justify-end mt-4">
           <button
               class="flex items-center justify-center bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 mx-1 rounded-full"
               @click="approval">
@@ -79,7 +79,7 @@
           </button>
         </div>
         <p v-else class="mt-2 text-amber-600">
-          已由 {{ application.approval_by }} 於 {{ dateParsedApprovalAt }} 許可
+          已由 {{ application.commitBy }} 於 {{ dateParsedApprovalAt }} 簽署 {{ application.commitState ? '許可' : '否決' }}
         </p>
       </div>
     </div>
@@ -133,18 +133,24 @@ export default {
       }
     },
     async approval() {
-      const options = {params: {code: this.query}};
+      const options = {params: {
+        code: this.query,
+        state: "true",
+      }};
       try {
-        await this.$axios.patch("application", null, options)
+        await this.$axios.patch("applications", null, options)
         await this.submit()
       } catch (e) {
         console.error(e)
       }
     },
     async reject() {
-      const options = {params: {code: this.query}};
+      const options = {params: {
+        code: this.query,
+        state: "false",
+      }};
       try {
-        await this.$axios.delete("application", options)
+        await this.$axios.patch("applications", null, options)
         this.application = {}
       } catch (e) {
         console.error(e)
@@ -154,24 +160,24 @@ export default {
   computed: {
     uaParsed() {
       const {
-        user_agent: uaString,
+        userAgent: uaString,
       } = this.application;
       return uaParser(uaString);
     },
     dateParsedCreatedAt() {
       const {
-        created_at: createdAt,
+        createdAt,
       } = this.application;
       return this.dateToHuman(
-        createdAt * 1000,
+        createdAt,
       );
     },
     dateParsedApprovalAt() {
       const {
-        approval_at: approvalAt,
+        commitAt,
       } = this.application;
       return this.dateToHuman(
-        approvalAt * 1000,
+        commitAt,
       );
     },
   },

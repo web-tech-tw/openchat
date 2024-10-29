@@ -80,7 +80,7 @@ export default {
       return;
     }
     try {
-      const xhr = await this.$axios.get('/admin-room');
+      const xhr = await this.$axios.get('/admin-rooms');
       this.url = xhr.data.url;
       this.password = xhr.data.password;
     } catch (error) {
