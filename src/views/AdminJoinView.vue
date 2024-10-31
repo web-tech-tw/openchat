@@ -90,13 +90,6 @@
 import uaParser from "ua-parser-js";
 
 import dayjs from "dayjs";
-import dayjsUtc from "dayjs/plugin/utc";
-import dayjsTimezone from "dayjs/plugin/timezone";
-import dayjsLocalizedFormat from "dayjs/plugin/localizedFormat";
-
-dayjs.extend(dayjsUtc);
-dayjs.extend(dayjsTimezone);
-dayjs.extend(dayjsLocalizedFormat);
 
 export default {
   name: "AdminJoinView",
@@ -109,9 +102,8 @@ export default {
     application: {}
   }),
   methods: {
-    dateToHuman(timestamp) {
-      const userTimezone = dayjs.tz.guess();
-      return dayjs.tz(timestamp, userTimezone).format("llll");
+    humanReadableFormater(time) {
+      return dayjs(time).format("YYYY-MM-DD HH:mm:ss");
     },
     async getUserNickname(commitBy) {
       const xhr = await this.$axios.get(`https://web-tech.tw/recv/sara/users/${commitBy}`);
@@ -181,7 +173,7 @@ export default {
       const {
         createdAt,
       } = this.application;
-      return this.dateToHuman(
+      return this.humanReadableFormater(
         createdAt,
       );
     },
@@ -189,7 +181,7 @@ export default {
       const {
         commitAt,
       } = this.application;
-      return this.dateToHuman(
+      return this.humanReadableFormater(
         commitAt,
       );
     },
