@@ -1,55 +1,44 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-
-Vue.use(VueRouter);
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: HomeView
+    path: "/",
+    component: () => import("../views/HomeView.vue"),
   },
   {
-    path: '/rule',
-    name: 'rule',
-    component: () => import('../views/RuleView.vue')
+    path: "/rule",
+    component: () => import("../views/RuleView.vue")
   },
   {
-    path: '/join',
-    name: 'join',
-    component: () => import('../views/JoinView.vue')
+    path: "/join",
+    component: () => import("../views/JoinView.vue")
   },
   {
-    path: '/join/:code',
-    name: 'join-chat',
-    component: () => import('../views/JoinChatView.vue'),
-    props: true
+    path: "/join/:code",
+    component: () => import("../views/JoinChatView.vue")
   },
   {
-    path: '/admin',
-    name: 'admin',
-    component: () => import('../views/AdminView.vue')
+    path: "/admin",
+    component: () => import("../views/AdminView.vue")
   },
   {
-    path: '/admin/join',
-    name: 'admin-join',
-    component: () => import('../views/AdminJoinView.vue')
+    path: "/admin/join",
+    component: () => import("../views/AdminJoinView.vue")
   },
   {
-    path: '/admin/room',
-    name: 'admin-room',
-    component: () => import('../views/AdminRoomView.vue')
+    path: "/admin/room",
+    component: () => import("../views/AdminRoomView.vue")
   },
   {
-    path: '*',
-    name: 'not-found',
-    component: () => import('../views/NotFoundView.vue'),
-  }
+    path: "/:pathMatch(.*)*",
+    component: () => import("../views/NotFoundView.vue"),
+  },
 ];
 
-const router = new VueRouter({
-  routes
+const router = createRouter({
+  scrollBehavior: () => ({ top: 0 }),
+  history: createWebHashHistory(),
+  routes,
 });
 
 export default router;

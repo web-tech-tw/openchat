@@ -63,7 +63,11 @@
 </template>
 
 <script>
-import data from "@/assets/hub.json";
+import {
+  useClient,
+} from "../clients/openchat";
+
+import data from "../assets/hub.json";
 
 export default {
   name: "JoinChatView",
@@ -89,7 +93,10 @@ export default {
   computed: {
     icon() {
       if (!this.code) return null;
-      return `${process.env.BASE_URL}static/images/chats/${this.code}.jpg`;
+      const {
+        BASE_URL: baseUrl,
+      } = import.meta.env;
+      return `${baseUrl}static/images/chats/${this.code}.jpg`;
     },
     description() {
       return this.info.description.replaceAll("\n", "<br />")
@@ -105,36 +112,40 @@ export default {
   methods: {
     copySecret() {
       if (!navigator.clipboard) {
-        this.status = '您的瀏覽器不支援複製功能'
+        this.status = "您的瀏覽器不支援複製功能"
         return
       }
       navigator.clipboard
           .writeText(this.secret)
-          .then(() => this.status = '已複製代碼')
-          .catch(() => this.status = '無法複製代碼')
+          .then(() => this.status = "已複製代碼")
+          .catch(() => this.status = "無法複製代碼")
     },
     async submit() {
       if (!this.accept) {
         if (!this.captcha) {
-          this.status = '尚未完成系統驗證';
+          this.status = "尚未完成系統驗證";
           return;
         }
 
         this.accept = true;
         this.ready = false;
         this.status = "";
-        const form = new URLSearchParams();
-        form.set('slug', this.code);
-        form.set('captcha', this.captcha);
         try {
-          const xhr = await this.$axios.post("applications", form)
+          const client = useClient();
+          const form = new URLSearchParams();
+          form.set("slug", this.code);
+          form.set("captcha", this.captcha);
+          const xhr = await client.post("applications", {
+            body: form,
+          });
+          const data = await xhr.json();
           this.ready = true;
-          this.secret = xhr.data.code;
+          this.secret = data.code;
         } catch (e) {
           if (e?.response?.data?.code) {
             this.secret = e?.response?.data?.code;
           } else {
-            this.status = '授權伺服器發生嚴重錯誤';
+            this.status = "授權伺服器發生嚴重錯誤";
           }
         } finally {
           this.ready = true;
@@ -155,8 +166,11 @@ export default {
     this.turnstileScript = document.createElement("script");
     this.turnstileScript.setAttribute("src", turnstileScriptUrl);
     window.loadTurnstile = () => {
+      const {
+        VITE_TURNSTILE_SITE_KEY: turnstileSiteKey,
+      } = import.meta.env;
       window.turnstile.render("#captcha", {
-        sitekey: process.env.VUE_APP_TURNSTILE_SITE_KEY,
+        sitekey: turnstileSiteKey,
         callback: (token) => {
           this.captcha = token;
         },
@@ -165,7 +179,7 @@ export default {
     if (this.code in data) {
       this.info = data[this.code];
     } else {
-      this.$router.replace({name: "join"});
+      this.$router.replace("/join");
     }
   }
 }

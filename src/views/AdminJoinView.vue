@@ -79,7 +79,7 @@
           </button>
         </div>
         <p v-else class="mt-2 text-amber-600">
-          已由 {{ commitBy }} 於 {{ dateParsedCommitAt }} 簽署 {{ application.commitState ? '許可' : '否決' }}
+          已由 {{ commitBy }} 於 {{ dateParsedCommitAt }} 簽署 {{ application.commitState ? "許可" : "否決" }}
         </p>
       </div>
     </div>
@@ -88,8 +88,15 @@
 
 <script>
 import uaParser from "ua-parser-js";
-
 import dayjs from "dayjs";
+import ky from "ky";
+
+import {
+  useProfile,
+} from "../plugins/profile";
+import {
+  useClient,
+} from "../clients/openchat";
 
 export default {
   name: "AdminJoinView",
@@ -106,22 +113,27 @@ export default {
       return dayjs(time).format("YYYY-MM-DD HH:mm:ss");
     },
     async getUserNickname(commitBy) {
-      const xhr = await this.$axios.get(`https://web-tech.tw/recv/sara/users/${commitBy}`);
+      const xhr = await ky.get(`https://web-tech.tw/recv/sara/users/${commitBy}`);
       if (xhr.status !== 200) {
         return commitBy;
       }
-      return xhr?.data?.profile?.nickname || commitBy;
+      const data = await xhr.json();
+      return data?.profile?.nickname || commitBy;
     },
     async submit() {
-      this.status = '';
+      this.status = "";
       if (!this.query) {
-        this.status = '請輸入資料';
+        this.status = "請輸入資料";
         return;
       }
-      const options = {params: {code: this.query}};
       try {
-        const xhr = await this.$axios.get("applications", options);
-        this.application = xhr.data;
+        const client = useClient();
+        const xhr = await client.get("applications", {
+          searchParams: {
+            code: this.query,
+          },
+        });
+        this.application = await xhr.json();
         const {commitBy} = this.application;
         if (commitBy) {
           this.commitBy = await this.getUserNickname(commitBy);
@@ -138,24 +150,28 @@ export default {
       }
     },
     async approval() {
-      const options = {params: {
-        code: this.query,
-        state: "true",
-      }};
       try {
-        await this.$axios.patch("applications", null, options)
+        const client = useClient();
+        await client.patch("applications", {
+          searchParams: {
+            code: this.query,
+            state: "true",
+          },
+        })
         await this.submit()
       } catch (e) {
         console.error(e)
       }
     },
     async reject() {
-      const options = {params: {
-        code: this.query,
-        state: "false",
-      }};
       try {
-        await this.$axios.patch("applications", null, options)
+        const client = useClient();
+        await client.patch("applications", {
+          searchParams: {
+            code: this.query,
+            state: "false",
+          },
+        })
         this.application = {}
       } catch (e) {
         console.error(e)
@@ -187,16 +203,21 @@ export default {
     },
   },
   async created() {
-    this.profile = this.$profile();
+    this.profile = useProfile();
     if (!this.profile) {
-      const refer = `${process.env.VUE_APP_SELF_HOST}/#/admin/join`;
-      const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
+      const {
+        VITE_SELF_HOST: selfHost,
+        VITE_SARA_INTE_HOST: saraInteHost,
+      } = import.meta.env;
+      const refer = `${selfHost}/#/admin/join`;
+      const referEncoded = encodeURIComponent(refer);
+      const url = `${saraInteHost}/?refer=${referEncoded}`;
       location.assign(url);
       return;
     }
     if (
         Array.isArray(this.profile?.roles) &&
-        this.profile.roles.includes('openchat')
+        this.profile.roles.includes("openchat")
     ) {
       this.access = true;
     } else {

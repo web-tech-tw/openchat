@@ -1,11 +1,8 @@
-"use strict";
-
-import Vue from "vue";
 import { jwtDecode } from "jwt-decode";
 
 const {
-    VUE_APP_SARA_TOKEN_NAME: saraTokenName,
-} = process.env;
+    VITE_SARA_TOKEN_NAME: saraTokenName,
+} = import.meta.env;
 
 export const useProfile = () => {
     const saraToken = localStorage.getItem(saraTokenName);
@@ -26,16 +23,3 @@ export const useProfile = () => {
         return null;
     }
 };
-
-const extension = {
-    install: (Vue) => {
-        window.profile = useProfile;
-        Vue.profile = useProfile;
-        Vue.prototype.profile = useProfile;
-        Vue.prototype.$profile = useProfile;
-    },
-};
-
-Vue.use(extension);
-
-export default extension;

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import data from "@/assets/hub.json";
+import data from "../assets/hub.json";
 
 export default {
   name: "JoinView",

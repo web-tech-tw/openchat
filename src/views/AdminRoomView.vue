@@ -39,6 +39,13 @@
 </template>
 
 <script>
+import {
+  useProfile,
+} from "../plugins/profile";
+import {
+  useClient,
+} from "../clients/openchat";
+
 export default {
   name: "AdminRoomView",
   data: () => ({
@@ -52,26 +59,31 @@ export default {
   methods: {
     copySecret() {
       if (!navigator.clipboard) {
-        this.status = '您的瀏覽器不支援複製功能'
+        this.status = "您的瀏覽器不支援複製功能"
         return
       }
       navigator.clipboard
           .writeText(this.password)
-          .then(() => this.status = '已複製代碼')
-          .catch(() => this.status = '無法複製代碼')
+          .then(() => this.status = "已複製代碼")
+          .catch(() => this.status = "無法複製代碼")
     },
   },
   async created() {
-    this.profile = this.$profile();
+    this.profile = useProfile();
     if (!this.profile) {
-      const refer = `${process.env.VUE_APP_SELF_HOST}/#/admin/room`;
-      const url = `${process.env.VUE_APP_SARA_INTE_HOST}/?refer=${encodeURIComponent(refer)}`;
+      const {
+        VITE_SELF_HOST: selfHost,
+        VITE_SARA_INTE_HOST: saraInteHost,
+      } = import.meta.env;
+      const refer = `${selfHost}/#/admin/room`;
+      const referEncoded = encodeURIComponent(refer);
+      const url = `${saraInteHost}/?refer=${referEncoded}`;
       location.assign(url);
       return;
     }
     if (
         Array.isArray(this.profile?.roles) &&
-        this.profile.roles.includes('openchat')
+        this.profile.roles.includes("openchat")
     ) {
       this.access = true;
     } else {
@@ -80,11 +92,13 @@ export default {
       return;
     }
     try {
-      const xhr = await this.$axios.get('/admin-rooms');
-      this.url = xhr.data.url;
-      this.password = xhr.data.password;
+      const client = useClient();
+      const xhr = await client.get("admin-rooms");
+      const data = await xhr.json();
+      this.url = data.url;
+      this.password = data.password;
     } catch (error) {
-      this.status = '授權伺服器發生嚴重錯誤';
+      this.status = "授權伺服器發生嚴重錯誤";
       console.error(error);
     } finally {
       this.ready = true;

@@ -12,12 +12,14 @@ jobs:
       - name: Specific Node.js version 🦄
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Checkout 🛎️
         uses: actions/checkout@v4
 
       - name: Install and Build 📎
+        env:
+          BASE_URL: ${{ vars.BASE_URL }}
         run: |
           npm install
           npm run build
@@ -25,10 +27,5 @@ jobs:
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: dist-pages
+          branch: gh-pages
           folder: dist
-
-      - name: Webhook 📲
-        uses: wei/curl@master
-        with:
-          args: ${{ vars.DEPLOY_WEBHOOK_URL }}?secret=${{ secrets.DEPLOY_WEBHOOK_SECRET }}
