@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "generate-chats-qr": "node scripts/generate_chats_qr.js"
+    "generate-chats-qr": "bun scripts/generate_chats_qr.js"
   },
   "dependencies": {
     "@nuxt/eslint": "1.10.0",

@@ -12,6 +12,7 @@ This project is built with Nuxt 4 + Vue 3 + Tailwind CSS, based on the [@web-tec
 
 - **Nuxt 4**: 全端 Vue.js 框架，提供 SSR/SSG 支援
 - **Vue 3**: 使用 Composition API
+- **Bun**: 快速的 JavaScript 執行環境與套件管理器
 - **@nuxt/ui**: UI 元件庫
 - **@nuxt/image**: 圖片最佳化
 - **Tailwind CSS**: 工具類優先的 CSS 框架
@@ -21,30 +22,38 @@ This project is built with Nuxt 4 + Vue 3 + Tailwind CSS, based on the [@web-tec
 
 ### 安裝相依套件 Install Dependencies
 
+本專案使用 Bun 作為套件管理器。
+
+This project uses Bun as the package manager.
+
+請先安裝 [Bun](https://bun.sh/)。
+
+Please install [Bun](https://bun.sh/) first.
+
 ```bash
-npm install
+bun install
 ```
 
 ### 開發除錯模式 Development Mode
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 ### 正式產品模式 Production Build
 
 ```bash
-npm run build
+bun run build
 ```
 
 ### 本機預覽 Local Preview
 
 ```bash
-npm run preview
+bun run preview
 ```
 
 ### 產生社群 QR Code Generate Community QR Codes
 
 ```bash
-npm run generate-chats-qr
+bun run generate-chats-qr
 ```
