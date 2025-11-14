@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   app: {
     head: {
-      titleTemplate: '%s - OpenChat Hub',
+      titleTemplate: '%s - Web-Tech-TW',
       title: 'OpenChat Hub',
     }
   },
@@ -13,11 +13,14 @@ export default defineNuxtConfig({
   nitro: { preset: 'bun' },
 
   colorMode: { preference: 'light' },
+  css: ['~/assets/css/main.css'],
 
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
+    '@nuxt/scripts',
     '@nuxt/ui',
+    '@nuxt/test-utils'
   ],
 
   runtimeConfig: {
