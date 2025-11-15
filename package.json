@@ -12,10 +12,9 @@
     "generate-chats-qr": "bun scripts/generate_chats_qr.js"
   },
   "dependencies": {
+    "@nuxt/content": "^3.8.0",
     "@nuxt/eslint": "1.10.0",
     "@nuxt/image": "2.0.0",
-    "@nuxt/scripts": "^0.13.0",
-    "@nuxt/test-utils": "^3.20.1",
     "@nuxt/ui": "4.1.0",
     "dayjs": "^1.11.12",
     "jwt-decode": "^4.0.0",

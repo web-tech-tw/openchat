@@ -18,9 +18,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
-    '@nuxt/scripts',
     '@nuxt/ui',
-    '@nuxt/test-utils'
+    '@nuxt/content',
   ],
 
   runtimeConfig: {
@@ -31,6 +30,7 @@ export default defineNuxtConfig({
       saraTokenName: 'unified_token',
       turnstileSiteKey: '0x4AAAAAAAr6LY1hBUbTBkVA',
       zebraTokenName: 'zebra',
+      homeInteHost: 'https://web-tech.tw',
     }
   }
 })
