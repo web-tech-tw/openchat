@@ -4,13 +4,21 @@
       v-for="(item, index) in menuItems"
       :key="index"
     >
-      <AppHeaderMenuItem
+      <app-header-menu-dropdown
+        v-if="item.type === 'dropdown'"
+        :name="item.name"
+        :children="item.children"
+        variant="normal"
+      />
+      <app-header-menu-item
+        v-else
         :name="item.name"
         :icon="item.icon"
         variant="normal"
         @click="onClickItem(item)"
       />
     </div>
+    <app-header-menu-sara v-if="isSaraEnabled" variant="normal" />
   </nav>
 </template>
 
@@ -18,6 +26,7 @@
 import {inject, type Ref} from "vue"
 
 import {
+  isSaraEnabled,
   menuItems,
   type MenuFunctionItem,
 } from "../data/AppHeaderMenuData"

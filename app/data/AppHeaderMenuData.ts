@@ -1,8 +1,35 @@
+import type {UserProfile} from "~/composables/useProfile.client"
+
 export const title = "OpenChat Hub"
 export const subtitle = "臺灣網際網路技術推廣組織"
 export const label = "OpenChat Hub"
 
 export const isSaraEnabled = false
+export const onClickSara = (_profile: UserProfile | null = null): void => {
+  const {
+    public: publicConfig,
+  } = useRuntimeConfig()
+
+  const {
+    saraInteHost,
+  } = publicConfig
+
+  location.assign(saraInteHost)
+}
+
+export interface MenuDropdownChild {
+  name: string
+  description: string
+  icon: string
+  onClick: () => void
+}
+
+export interface MenuDropdownItem {
+  name: string
+  type: "dropdown"
+  status: string
+  children: MenuDropdownChild[]
+}
 
 export interface MenuFunctionItem {
   name: string
@@ -11,7 +38,7 @@ export interface MenuFunctionItem {
   onClick: () => void
 }
 
-export type MenuItem = MenuFunctionItem
+export type MenuItem = MenuDropdownItem | MenuFunctionItem
 
 export const menuItems: MenuItem[] = [
   {
