@@ -2,26 +2,58 @@
 
 由 臺灣網際網路技術推廣組織 所管理的 LINE社群 列表
 
-## 專案設定
+## 系統架構 System Architecture
 
-```
-npm install
+本專案採用 Nuxt 4 + Vue 3 + Tailwind CSS 打造，基於 [@web-tech-tw/wings](https://github.com/web-tech-tw/wings) 架構。
+
+This project is built with Nuxt 4 + Vue 3 + Tailwind CSS, based on the [@web-tech-tw/wings](https://github.com/web-tech-tw/wings) architecture.
+
+### 技術棧 Tech Stack
+
+- **Nuxt 4**: 全端 Vue.js 框架，提供 SSR/SSG 支援
+- **Vue 3**: 使用 Composition API
+- **Bun**: 快速的 JavaScript 執行環境與套件管理器
+- **@nuxt/ui**: UI 元件庫
+- **@nuxt/image**: 圖片最佳化
+- **Tailwind CSS**: 工具類優先的 CSS 框架
+- **TypeScript**: 型別安全支援
+
+## 專案設定 Setup
+
+### 安裝相依套件 Install Dependencies
+
+本專案使用 Bun 作為套件管理器。
+
+This project uses Bun as the package manager.
+
+請先安裝 [Bun](https://bun.sh/)。
+
+Please install [Bun](https://bun.sh/) first.
+
+```bash
+bun install
 ```
 
-### 編譯且即時重新載入（開發環境）
+### 開發除錯模式 Development Mode
 
-```
-npm run serve
-```
-
-### 編譯且壓縮檔案大小（正式環境）
-
-```
-npm run build
+```bash
+bun run dev
 ```
 
-### 檢測並修正檔案（整理程式碼格式）
+### 正式產品模式 Production Build
 
+```bash
+bun run build
 ```
-npm run lint
+
+### 本機預覽 Local Preview
+
+```bash
+bun run preview
+```
+
+### 產生社群 QR Code Generate Community QR Codes
+
+```bash
+bun run generate-chats-qr
 ```
