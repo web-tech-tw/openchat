@@ -13,7 +13,6 @@
       <app-header-menu-item
         v-else
         :name="item.name"
-        :icon="item.icon"
         variant="normal"
         @click="onClickItem(item)"
       />
