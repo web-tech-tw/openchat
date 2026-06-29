@@ -95,7 +95,7 @@ let turnstileScript: HTMLScriptElement | null = null;
 
 const icon = computed(() => {
   if (!code.value) return null;
-  return `/static/images/chats/${code.value}.jpg`;
+  return `${config.app.baseURL}static/images/chats/${code.value}.jpg`;
 });
 
 const description = computed(() => {
