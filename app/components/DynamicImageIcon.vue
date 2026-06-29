@@ -1,13 +1,19 @@
 <template>
-  <NuxtImg
-    :src="props.name"
+  <img
     :alt="props.name"
-    class="rounded-full"
-  />
+    :src="resource"
+    v-bind="props"
+  >
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-  name: string
-}>()
+  name: string;
+  class?: string;
+}>();
+
+type IconName = 'Unknown';
+
+const allIcons: Record<IconName, string> = {Unknown: ''};
+const resource = allIcons[props.name as IconName] || props.name;
 </script>

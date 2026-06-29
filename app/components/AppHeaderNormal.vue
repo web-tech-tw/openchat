@@ -22,18 +22,18 @@
 </template>
 
 <script setup lang="ts">
-import {inject, type Ref} from "vue"
+import {inject, type Ref} from 'vue';
 
 import {
   isSaraEnabled,
   menuItems,
   type MenuFunctionItem,
-} from "../data/AppHeaderMenuData"
+} from '../data/AppHeaderMenuData';
 
-const parentMenuState = inject<Ref<boolean>>("parent-menu-state")!
+const parentMenuState = inject<Ref<boolean>>('parent-menu-state')!;
 
 const onClickItem = (item: MenuFunctionItem): void => {
-  parentMenuState.value = false
-  item.onClick()
-}
+  parentMenuState.value = false;
+  item.onClick();
+};
 </script>

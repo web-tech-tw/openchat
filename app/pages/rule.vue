@@ -7,10 +7,10 @@
 <script setup lang="ts">
 useHead({
   title: 'OpenChat Hub 規範',
-})
+});
 
-const { data } = await useAsyncData('rule',
-  () => queryCollection('content').path('/rule').first(),
-)
+const {data} = await useAsyncData('rule',
+    () => queryCollection('content').path('/rule').first(),
+);
 </script>
 

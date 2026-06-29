@@ -28,12 +28,12 @@
 
 <script setup lang="ts">
 const {
-  public: publicConfig
-} = useRuntimeConfig()
+  public: publicConfig,
+} = useRuntimeConfig();
 
 const {
   homeInteHost,
-} = publicConfig
+} = publicConfig;
 
-const year = new Date().getFullYear()
+const year = new Date().getFullYear();
 </script>

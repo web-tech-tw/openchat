@@ -4,22 +4,26 @@ export default defineNuxtConfig({
     head: {
       titleTemplate: '%s - Web-Tech-TW',
       title: 'OpenChat Hub',
-    }
+    },
   },
 
   compatibilityDate: '2025-07-15',
 
-  devtools: { enabled: true },
-  nitro: { preset: 'bun' },
+  devtools: {enabled: true},
+  nitro: {preset: 'bun'},
 
-  colorMode: { preference: 'light' },
+  ui: {
+    colorMode: false,
+  },
   css: ['~/assets/css/main.css'],
 
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
+    '@nuxt/scripts',
     '@nuxt/ui',
     '@nuxt/content',
+    '@nuxt/test-utils',
   ],
 
   runtimeConfig: {
@@ -31,6 +35,6 @@ export default defineNuxtConfig({
       turnstileSiteKey: '0x4AAAAAAAr6LY1hBUbTBkVA',
       zebraTokenName: 'zebra',
       homeInteHost: 'https://web-tech.tw',
-    }
-  }
-})
+    },
+  },
+});

@@ -1,21 +1,21 @@
-import type {UserProfile} from "~/composables/useProfile.client"
+import type {UserProfile} from '~/composables/useProfile.client';
 
-export const title = "OpenChat Hub"
-export const subtitle = "臺灣網際網路技術推廣組織"
-export const label = "OpenChat Hub"
+export const title = 'OpenChat Hub';
+export const subtitle = '臺灣網際網路技術推廣組織';
+export const label = 'OpenChat Hub';
 
-export const isSaraEnabled = false
+export const isSaraEnabled = false;
 export const onClickSara = (_profile: UserProfile | null = null): void => {
   const {
     public: publicConfig,
-  } = useRuntimeConfig()
+  } = useRuntimeConfig();
 
   const {
     saraInteHost,
-  } = publicConfig
+  } = publicConfig;
 
-  location.assign(saraInteHost)
-}
+  location.assign(saraInteHost);
+};
 
 export interface MenuDropdownChild {
   name: string
@@ -26,14 +26,14 @@ export interface MenuDropdownChild {
 
 export interface MenuDropdownItem {
   name: string
-  type: "dropdown"
+  type: 'dropdown'
   status: string
   children: MenuDropdownChild[]
 }
 
 export interface MenuFunctionItem {
   name: string
-  type: "function"
+  type: 'function'
   icon: string
   onClick: () => void
 }
@@ -42,43 +42,43 @@ export type MenuItem = MenuDropdownItem | MenuFunctionItem
 
 export const menuItems: MenuItem[] = [
   {
-    name: "社群列表",
-    type: "function",
-    icon: "/icons/collection.svg",
+    name: '社群列表',
+    type: 'function',
+    icon: '/icons/collection.svg',
     onClick: () => {
       if (import.meta.client) {
-        navigateTo('/join')
+        navigateTo('/join');
       }
-    }
+    },
   },
   {
-    name: "社群規範",
-    type: "function",
-    icon: "/icons/information-circle.svg",
+    name: '社群規範',
+    type: 'function',
+    icon: '/icons/information-circle.svg',
     onClick: () => {
       if (import.meta.client) {
-        navigateTo('/rule')
+        navigateTo('/rule');
       }
-    }
+    },
   },
   {
-    name: "社群管理",
-    type: "function",
-    icon: "/icons/shield-check.svg",
+    name: '社群管理',
+    type: 'function',
+    icon: '/icons/shield-check.svg',
     onClick: () => {
       if (import.meta.client) {
-        navigateTo('/admin')
+        navigateTo('/admin');
       }
-    }
+    },
   },
   {
-    name: "回首頁",
-    type: "function",
-    icon: "/icons/home.svg",
+    name: '回首頁',
+    type: 'function',
+    icon: '/icons/home.svg',
     onClick: () => {
       if (import.meta.client) {
-        location.assign("https://web-tech.tw")
+        location.assign('https://web-tech.tw');
       }
-    }
-  }
-]
+    },
+  },
+];

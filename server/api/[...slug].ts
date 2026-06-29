@@ -1,6 +1,6 @@
 export default defineEventHandler(
     () => useCat({
-      status: 200,
-      message: 'Ping? Pong!',
+      status: 404,
+      message: 'Resource not exists.',
     }),
 );

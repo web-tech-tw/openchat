@@ -3,6 +3,16 @@ export interface UseCatParams {
   message?: string;
 }
 
+/**
+ * Generate a cat ASCII art message as a Response or string.
+ * @param [params] - Options for the cat output.
+ * @param [params.status] - HTTP status to use when
+ * returning a Response.
+ * @param [params.message] - A message to prefix the ASCII
+ * art.
+ * @returns A Response object (default) or a string,
+ * depending on the type parameter T.
+ */
 export function useCat<T extends Response | string = Response>({
   status = 200,
   message = '',
@@ -30,6 +40,6 @@ export function useCat<T extends Response | string = Response>({
   return new Response(body, {
     status, headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-    }
+    },
   }) as T;
 }

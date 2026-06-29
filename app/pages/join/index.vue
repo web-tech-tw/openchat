@@ -22,5 +22,5 @@
 </template>
 
 <script setup lang="ts">
-import data from '@/data/hub.json'
+import data from '@/data/hub.json';
 </script>
