@@ -55,16 +55,16 @@
             </div>
             <!-- Title -->
             <h3 class="text-xl font-bold text-slate-800 transition-colors duration-300 group-hover:text-indigo-600">
-              檢查加入代碼
+              入群申請儀表板
             </h3>
             <!-- Description -->
             <p class="mt-2 text-sm text-slate-500 leading-relaxed">
-              輸入並驗證申請人提供的審核驗證碼，查閱其地理位置、裝置與歷史紀錄以確認是否放行。
+              總覽所有入群申請並進行審核，透過 IP、裝置與 Zebra 關聯圖辨識重複申請與可疑集團。
             </p>
           </div>
           <!-- Arrow Indicator -->
           <div class="mt-6 flex items-center text-sm font-semibold text-indigo-600 group-hover:text-indigo-700">
-            開始檢查
+            進入儀表板
             <UIcon name="i-heroicons-arrow-right" class="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </div>
         </NuxtLink>
