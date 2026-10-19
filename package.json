@@ -9,6 +9,7 @@
     "generate": "bun --bun x nuxt generate",
     "preview": "bun --bun x nuxt preview",
     "postinstall": "bun --bun x nuxt prepare",
+  "test": "vitest run",
     "generate-chats-qr": "bun scripts/generate_chats_qr.js",
     "lint": "lint-staged",
     "lint:es:fix": "eslint . --fix",
@@ -56,6 +57,8 @@
     "husky": "^8.0.3",
     "images": "^3.2.4",
     "lint-staged": "^13.2.0",
-    "qrcode": "^1.5.0"
+    "playwright": "^1.64.1",
+    "qrcode": "^1.5.0",
+    "vitest": "^5.0.5"
   }
 }
