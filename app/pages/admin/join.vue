@@ -78,6 +78,13 @@ v-model="roomFilter"
 v-for="room in roomOptions" :key="room.slug" :value="room.slug"
             >{{ room.label }}</option>
           </select>
+          <button
+v-if="clusterCodes"
+              class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 border border-rose-200 cursor-pointer px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+              @click="clusterCodes = null">
+            只看叢集（{{ clusterCodes.length }} 筆）
+            <UIcon class="h-3.5 w-3.5" name="i-heroicons-x-mark"/>
+          </button>
           <div class="flex-1 min-w-[200px] max-w-sm flex rounded-full bg-white shadow-sm border border-slate-200">
             <input
 v-model="query"
@@ -170,6 +177,7 @@ v-if="item.ipGeolocation?.country"
         <!-- Graph view -->
         <AdminJoinGraph
 v-else :edges="graphEdges" :nodes="graphNodes" :selected-code="selected?.code || null"
+                         @inspect="inspectCluster"
                          @select="selectByCode"/>
 
         <!-- Detail modal -->
@@ -359,6 +367,12 @@ const formatDevice = (application: any) => {
 const roomOptions = ref<{slug: string; label: string}[]>([]);
 const nextCursor = ref<string | null>(null);
 const loadingMore = ref(false);
+const clusterCodes = ref<string[] | null>(null);
+
+const inspectCluster = (codes: string[]) => {
+  clusterCodes.value = codes;
+  viewMode.value = 'list';
+};
 
 const listSearchParams = (cursor: string | null) => {
   const searchParams: Record<string, string> = {limit: '100'};
@@ -461,11 +475,14 @@ watch([stateFilter, roomFilter], () => {
 });
 
 const filteredApplications = computed(() => {
+  let list = applications.value;
+  if (clusterCodes.value) {
+    const codeSet = new Set(clusterCodes.value);
+    list = list.filter((application) => codeSet.has(application.code));
+  }
   const keyword = query.value.trim();
-  if (!keyword) return applications.value;
-  return applications.value.filter(
-      (application) => application.code.includes(keyword),
-  );
+  if (!keyword) return list;
+  return list.filter((application) => application.code.includes(keyword));
 });
 
 const riskOf = (code: string) => {

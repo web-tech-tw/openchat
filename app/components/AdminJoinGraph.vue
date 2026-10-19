@@ -1,62 +1,178 @@
 <template>
-  <div class="relative w-full">
-    <div class="flex flex-wrap gap-3 mb-2 text-xs text-slate-500">
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded-full bg-red-500"/>
-        高風險
-      </span>
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded-full bg-amber-400"/>
-        中風險
-      </span>
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded-full bg-slate-300"/>
-        低風險／獨立
-      </span>
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-5 h-0.5 bg-rose-500"/>
-        Zebra 同人
-      </span>
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-5 h-0.5 bg-orange-400"/>
-        同 IP
-      </span>
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-5 h-0.5 bg-violet-400"/>
-        同裝置（補強）
-      </span>
-      <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-5 h-0.5 bg-teal-400"/>
-        同網段
-      </span>
-      <span class="basis-full text-slate-400">
-        滾輪或雙指縮放、拖曳平移；點叢集展開成員，點申請節點查看詳情
-      </span>
-    </div>
-    <div class="relative w-full bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <div
-v-if="mode === 'cluster'"
-           class="absolute top-3 left-3 z-10 flex items-center gap-2">
-        <button
-class="inline-flex items-center gap-1.5 rounded-full bg-white/95 border border-slate-200 shadow-sm cursor-pointer px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                @click="backToOverview">
-          <UIcon class="h-3.5 w-3.5" name="i-heroicons-arrow-left"/>
-          返回總覽
-        </button>
-        <span class="rounded-full bg-slate-900/85 text-white px-3 py-1.5 text-xs font-semibold">
-          叢集 {{ activeClusterId }}（{{ activeClusterSize }} 筆）
+  <div class="space-y-2">
+    <!-- Compact legend & controls -->
+    <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="inline-flex items-center gap-1">
+          <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#94a3b8"/>
+          低風險
         </span>
+        <span class="inline-flex items-center gap-1">
+          <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#f59e0b"/>
+          中風險
+        </span>
+        <span class="inline-flex items-center gap-1">
+          <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#e11d48"/>
+          高風險
+        </span>
+        <span class="text-slate-400">線越粗＝關聯越強，hover 節點與連線看關係細節</span>
       </div>
-      <div
+      <div class="flex items-center gap-2">
+        <button
+class="inline-flex items-center gap-1.5 cursor-pointer rounded-full border px-3 py-1 font-semibold transition-colors"
+                :class="showIsolated ?
+                  'bg-slate-900 text-white border-slate-900' :
+                  'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'"
+                :disabled="!isolatedCount"
+                @click="showIsolated = !showIsolated">
+          含獨立申請
+          <span class="font-mono">{{ isolatedCount }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
+      <!-- Triage panel -->
+      <div class="flex flex-col rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden max-h-[688px]">
+        <!-- Overview: ranked suspicious clusters -->
+        <template v-if="mode === 'overview'">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <span class="text-sm font-bold text-slate-700">疑似集團排行</span>
+            <span class="text-xs text-slate-400">{{ rankedClusters.length }} 群</span>
+          </div>
+          <div class="overflow-y-auto flex-1 divide-y divide-slate-100">
+            <button
+v-for="(cluster, index) in rankedClusters" :key="cluster.id"
+                    class="block w-full text-left px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                    @click="enterCluster(cluster.id)">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-bold text-slate-700">
+                  #{{ index + 1 }}
+                  <span class="font-mono">{{ cluster.size }}</span> 筆
+                </span>
+                <span
+class="text-xs font-semibold"
+                      :style="{color: riskColor(cluster.riskLevel)}">
+                  {{ riskText(cluster.riskLevel) }}風險
+                </span>
+              </div>
+              <p class="mt-0.5 text-xs text-slate-500 truncate">
+                {{ cluster.rooms.join('、') }}
+              </p>
+              <div class="mt-1 flex items-center gap-2 text-xs">
+                <span
+v-if="cluster.multiRoom"
+                      class="rounded-full bg-rose-50 text-rose-600 px-2 py-0.5">跨社群</span>
+                <span
+v-if="cluster.burst"
+                      class="rounded-full bg-amber-50 text-amber-600 px-2 py-0.5">短時間密集</span>
+              </div>
+              <div class="mt-2 h-1 rounded-full bg-slate-100">
+                <div
+class="h-1 rounded-full"
+                     :style="{
+                       width: `${Math.min(cluster.riskScore / maxRiskScore * 100, 100)}%`,
+                       background: riskColor(cluster.riskLevel),
+                     }"/>
+              </div>
+            </button>
+            <div
+v-if="!rankedClusters.length"
+                 class="px-4 py-10 text-center text-xs text-slate-400">
+              沒有偵測到疑似集團
+            </div>
+            <button
+v-if="isolatedCount"
+                    class="block w-full text-left px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                    @click="showIsolated = !showIsolated">
+              <span class="text-sm text-slate-500">
+                獨立申請
+                <span class="font-mono">{{ isolatedCount }}</span> 筆
+                <span class="text-xs text-slate-400">
+                  （{{ showIsolated ? '點擊隱藏於圖中' : '點擊顯示於圖中' }}）
+                </span>
+              </span>
+            </button>
+          </div>
+        </template>
+
+        <!-- Cluster mode: investigation panel -->
+        <template v-else>
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+            <button
+class="inline-flex items-center gap-1.5 cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-900"
+                    @click="backToOverview">
+              <UIcon class="h-4 w-4" name="i-heroicons-arrow-left"/>
+              返回排行
+            </button>
+          </div>
+          <div class="px-4 py-3 border-b border-slate-100">
+            <p class="text-sm font-bold text-slate-700">
+              叢集（<span class="font-mono">{{ activeClusterSize }}</span> 筆）
+            </p>
+            <p class="mt-0.5 text-xs text-slate-500 truncate">{{ activeClusterRooms }}</p>
+            <div class="mt-1.5 flex items-center gap-2 text-xs">
+              <span
+v-if="activeClusterFlags.multiRoom"
+                    class="rounded-full bg-rose-50 text-rose-600 px-2 py-0.5">跨社群</span>
+              <span
+v-if="activeClusterFlags.burst"
+                    class="rounded-full bg-amber-50 text-amber-600 px-2 py-0.5">短時間密集</span>
+              <span
+class="rounded-full px-2 py-0.5"
+                    :style="{background: riskColor(activeClusterFlags.riskLevel) + '1a',
+                             color: riskColor(activeClusterFlags.riskLevel)}">
+                {{ riskText(activeClusterFlags.riskLevel) }}風險
+              </span>
+            </div>
+            <button
+class="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-full bg-slate-900 hover:bg-slate-800 cursor-pointer text-white text-xs font-bold px-3 py-2"
+                    @click="inspectActiveCluster">
+              <UIcon class="h-3.5 w-3.5" name="i-heroicons-list-bullet"/>
+              在列表只看此叢集
+            </button>
+          </div>
+          <div class="overflow-y-auto flex-1 divide-y divide-slate-100">
+            <button
+v-for="member in activeClusterMembers" :key="member.code"
+                    class="block w-full text-left px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors"
+                    @click="emit('select', member.code)">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-sm text-slate-800">{{ member.code }}</span>
+                <span class="text-xs text-slate-400 truncate">{{ member.roomLabel }}</span>
+              </div>
+              <p class="mt-0.5 text-xs text-slate-400 truncate">{{ member.device }}</p>
+            </button>
+          </div>
+        </template>
+      </div>
+
+      <!-- Graph canvas -->
+      <div class="relative rounded-2xl bg-white border border-slate-200 overflow-hidden">
+        <div
+v-if="mode === 'cluster'"
+             class="absolute top-3 left-3 z-10 flex items-center gap-2">
+          <span class="rounded-full bg-slate-900/85 text-white px-3 py-1.5 text-xs font-semibold">
+            叢集成員（{{ activeClusterSize }} 筆）
+          </span>
+        </div>
+        <button
+aria-label="重設縮放"
+                class="absolute top-3 right-3 z-10 rounded-full bg-white/95 border border-slate-200 shadow-sm cursor-pointer h-8 w-8 text-slate-600 hover:bg-slate-50"
+                @click="resetView">
+          <UIcon class="h-4 w-4" name="i-heroicons-arrow-path"/>
+        </button>
+        <div
 v-if="!nodes.length"
-           class="flex items-center justify-center h-64 text-sm text-slate-400">
-        沒有可分析的申請資料
-      </div>
-      <div
+             class="flex items-center justify-center h-64 text-sm text-slate-400">
+          沒有可分析的申請資料
+        </div>
+        <div
 v-show="nodes.length"
-           ref="chartEl"
-           class="w-full"
-           style="height: 640px;"/>
+             ref="chartEl"
+             class="w-full"
+             style="height: 640px;"/>
+      </div>
     </div>
   </div>
 </template>
@@ -102,30 +218,106 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [code: string];
+  inspect: [codes: string[]];
 }>();
 
 const mode = ref<'overview' | 'cluster'>('overview');
 const activeClusterId = ref<number | null>(null);
+const showIsolated = ref(false);
 const chartEl = ref<HTMLDivElement | null>(null);
 
 let chart: echarts.EChartsType | null = null;
 
-const activeClusterSize = computed(() =>
-  props.nodes.filter((node) => node.clusterId === activeClusterId.value).length,
+const RISK_COLORS: Record<string, string> = {
+  high: '#e11d48',
+  medium: '#f59e0b',
+  low: '#94a3b8',
+};
+const EDGE_COLOR = '#cbd5e1';
+
+const riskColor = (riskLevel: string) => RISK_COLORS[riskLevel] || RISK_COLORS.low;
+const riskText = (riskLevel: string) => riskLevel === 'high' ? '高' : riskLevel === 'medium' ? '中' : '低';
+
+interface ClusterInfo {
+  id: number;
+  size: number;
+  riskScore: number;
+  riskLevel: string;
+  multiRoom: boolean;
+  burst: boolean;
+  rooms: string[];
+  codes: string[];
+}
+
+const clusters = computed<ClusterInfo[]>(() => {
+  const map = new Map<number, AdminJoinGraphNode[]>();
+  for (const node of props.nodes) {
+    if (!map.has(node.clusterId)) map.set(node.clusterId, []);
+    map.get(node.clusterId)?.push(node);
+  }
+  return [...map.entries()].map(([id, members]) => ({
+    id,
+    size: members.length,
+    riskScore: members.reduce((sum, member) => sum + member.riskScore, 0),
+    riskLevel: members[0].riskLevel,
+    multiRoom: members[0].clusterMultiRoom ?? false,
+    burst: members[0].clusterBurst ?? false,
+    rooms: [...new Set(members.map((member) => member.roomLabel))],
+    codes: members.map((member) => member.code),
+  }));
+});
+
+const rankedClusters = computed(() => clusters.value.
+    filter((cluster) => cluster.size >= 2).
+    sort((a, b) => b.riskScore - a.riskScore || b.size - a.size));
+
+const isolatedCount = computed(() =>
+  clusters.value.filter((cluster) => cluster.size === 1).length,
 );
 
-const colorOfRisk = (riskLevel: string) => {
-  if (riskLevel === 'high') return '#ef4444';
-  if (riskLevel === 'medium') return '#fbbf24';
-  return '#cbd5e1';
+const maxRiskScore = computed(() =>
+  Math.max(...rankedClusters.value.map((cluster) => cluster.riskScore), 1),
+);
+
+const activeClusterMembers = computed(() =>
+  props.nodes.filter((node) => node.clusterId === activeClusterId.value),
+);
+
+const activeClusterSize = computed(() => activeClusterMembers.value.length);
+
+const activeClusterRooms = computed(() => {
+  const cluster = clusters.value.find((c) => c.id === activeClusterId.value);
+  return cluster?.rooms.join('、') || '';
+});
+
+const activeClusterFlags = computed(() => {
+  const cluster = clusters.value.find((c) => c.id === activeClusterId.value);
+  return {
+    multiRoom: cluster?.multiRoom ?? false,
+    burst: cluster?.burst ?? false,
+    riskLevel: cluster?.riskLevel || 'low',
+  };
+});
+
+const enterCluster = (clusterId: number) => {
+  activeClusterId.value = clusterId;
+  mode.value = 'cluster';
 };
 
-const colorOfRelation = (relations: string[]) => {
-  if (relations.includes('zebra')) return '#f43f5e';
-  if (relations.includes('ip')) return '#fb923c';
-  if (relations.includes('device')) return '#a78bfa';
-  if (relations.includes('subnet')) return '#2dd4bf';
-  return '#94a3b8';
+const backToOverview = () => {
+  mode.value = 'overview';
+  activeClusterId.value = null;
+};
+
+const inspectActiveCluster = () => {
+  const cluster = clusters.value.find((c) => c.id === activeClusterId.value);
+  if (cluster) {
+    emit('inspect', cluster.codes);
+  }
+};
+
+const resetView = () => {
+  refreshOption();
 };
 
 const buildTooltip = (params: any) => {
@@ -145,7 +337,7 @@ const buildTooltip = (params: any) => {
     return [
       `<b>叢集（${data.size} 筆申請）</b>`,
       `社群：${data.rooms.join('、')}`,
-      `風險：${data.riskLevel}${flags ? '｜' + flags : ''}`,
+      `風險：${riskText(data.riskLevel)}${flags ? '｜' + flags : ''}`,
       '點擊展開叢集成員',
     ].join('<br/>');
   }
@@ -162,7 +354,7 @@ const buildTooltip = (params: any) => {
     `代碼：${node.code}`,
     `IP：${node.ipAddress}（${geo?.country || '未知'}${geo?.city ? ' ' + geo.city : ''}）`,
     `裝置：${node.device}`,
-    `風險：${node.riskLevel}｜叢集 ${node.clusterSize} 筆${flags ? '｜' + flags : ''}`,
+    `風險：${riskText(node.riskLevel)}｜叢集 ${node.clusterSize} 筆${flags ? '｜' + flags : ''}`,
   ].join('<br/>');
 };
 
@@ -172,17 +364,14 @@ const buildOption = (): any => {
   let links: any[] = [];
 
   if (isClusterMode) {
-    const members = props.nodes.
-        filter((node) => node.clusterId === activeClusterId.value);
-    const memberCodes = new Set(members.map((member) => member.code));
-    data = members.map((node) => ({
+    data = activeClusterMembers.value.map((node) => ({
       id: node.code,
       name: node.code,
       kind: 'node',
       code: node.code,
       symbolSize: 2 * (5 + Math.min(node.clusterSize - 1, 8)),
       itemStyle: {
-        color: colorOfRisk(node.riskLevel),
+        color: riskColor(node.riskLevel),
         borderColor: node.code === props.selectedCode ? '#0f172a' : '#ffffff',
         borderWidth: node.code === props.selectedCode ? 3 : 2,
       },
@@ -193,6 +382,7 @@ const buildOption = (): any => {
         fontSize: 10,
       },
     }));
+    const memberCodes = new Set(activeClusterMembers.value.map((member) => member.code));
     links = props.edges.
         filter((edge) => memberCodes.has(edge.source) && memberCodes.has(edge.target)).
         map((edge) => ({
@@ -203,34 +393,28 @@ const buildOption = (): any => {
           relations: edge.relations,
           weight: edge.weight,
           lineStyle: {
-            color: colorOfRelation(edge.relations),
-            width: Math.min(1 + edge.weight * 0.4, 4),
-            opacity: Math.min(0.25 + edge.weight * 0.08, 0.8),
+            color: EDGE_COLOR,
+            width: Math.min(1 + edge.weight * 0.4, 5),
+            opacity: 0.45,
           },
         }));
   } else {
-    // One item per cluster (or per isolated application)
-    const clusters = new Map<number, AdminJoinGraphNode[]>();
-    for (const node of props.nodes) {
-      if (!clusters.has(node.clusterId)) clusters.set(node.clusterId, []);
-      clusters.get(node.clusterId)?.push(node);
-    }
-    data = [...clusters.entries()].map(([clusterId, members]) => {
-      if (members.length >= 2) {
-        return {
-          id: `cluster-${clusterId}`,
-          name: `cluster-${clusterId}`,
+    data = clusters.value.flatMap((cluster) => {
+      if (cluster.size >= 2) {
+        return [{
+          id: `cluster-${cluster.id}`,
+          name: `cluster-${cluster.id}`,
           kind: 'cluster',
-          clusterId,
-          size: members.length,
-          riskLevel: members[0].riskLevel,
-          multiRoom: members[0].clusterMultiRoom ?? false,
-          burst: members[0].clusterBurst ?? false,
-          rooms: [...new Set(members.map((member) => member.roomLabel))],
-          symbolSize: 2 * (12 + Math.min(members.length * 2.5, 26)),
+          clusterId: cluster.id,
+          size: cluster.size,
+          riskLevel: cluster.riskLevel,
+          multiRoom: cluster.multiRoom,
+          burst: cluster.burst,
+          rooms: cluster.rooms,
+          symbolSize: 2 * (12 + Math.min(cluster.size * 2.5, 26)),
           itemStyle: {
-            color: colorOfRisk(members[0].riskLevel),
-            borderColor: '#ffffff',
+            color: riskColor(cluster.riskLevel),
+            borderColor: cluster.id === activeClusterId.value ? '#0f172a' : '#ffffff',
             borderWidth: 2,
           },
           label: {
@@ -240,17 +424,18 @@ const buildOption = (): any => {
             fontSize: 13,
             fontWeight: 'bold',
           },
-        };
+        }];
       }
-      const node = members[0];
-      return {
+      if (!showIsolated.value) return [];
+      const node = props.nodes.find((candidate) => candidate.clusterId === cluster.id)!;
+      return [{
         id: node.code,
         name: node.code,
         kind: 'single',
         code: node.code,
         symbolSize: 10,
         itemStyle: {
-          color: colorOfRisk(node.riskLevel),
+          color: riskColor(node.riskLevel),
           borderColor: node.code === props.selectedCode ? '#0f172a' : '#ffffff',
           borderWidth: node.code === props.selectedCode ? 3 : 2,
         },
@@ -260,14 +445,15 @@ const buildOption = (): any => {
           color: '#64748b',
           fontSize: 10,
         },
-      };
+      }];
     });
 
     // Aggregate the edges between clusters
     const codeToCluster = new Map(props.nodes.map((node) => [node.code, node.clusterId]));
     const keyOfCluster = (clusterId: number) => {
-      const members = clusters.get(clusterId) || [];
-      return members.length >= 2 ? `cluster-${clusterId}` : members[0]?.code || '';
+      const cluster = clusters.value.find((c) => c.id === clusterId);
+      if (!cluster) return '';
+      return cluster.size >= 2 ? `cluster-${clusterId}` : cluster.codes[0] || '';
     };
     const linkMap = new Map<string, any>();
     for (const edge of props.edges) {
@@ -296,9 +482,9 @@ const buildOption = (): any => {
     links = [...linkMap.values()].map((link) => ({
       ...link,
       lineStyle: {
-        color: '#94a3b8',
-        width: Math.min(1 + link.weight * 0.2, 3),
-        opacity: 0.4,
+        color: EDGE_COLOR,
+        width: Math.min(1 + link.weight * 0.2, 4),
+        opacity: 0.35,
       },
     }));
   }
@@ -337,18 +523,12 @@ const refreshOption = () => {
 const onChartClick = (params: any) => {
   if (params.dataType !== 'node') return;
   if (params.data.kind === 'cluster') {
-    activeClusterId.value = params.data.clusterId;
-    mode.value = 'cluster';
+    enterCluster(params.data.clusterId);
     return;
   }
   if (params.data.code) {
     emit('select', params.data.code);
   }
-};
-
-const backToOverview = () => {
-  mode.value = 'overview';
-  activeClusterId.value = null;
 };
 
 const resizeHandler = () => chart?.resize();
@@ -389,4 +569,6 @@ watch(() => [props.nodes, props.edges], () => {
 watch(() => props.selectedCode, refreshOption);
 
 watch([mode, activeClusterId], refreshOption);
+
+watch(showIsolated, refreshOption);
 </script>
