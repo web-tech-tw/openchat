@@ -12,7 +12,7 @@
             入群申請儀表板
           </h1>
           <p class="mt-1 text-sm text-slate-500">
-            審核申請、檢視 IP／裝置／Zebra 關聯分析，辨識重複申請與可疑集團
+            審核申請、檢視 IP、裝置與瀏覽器特徵的關聯分析，辨識重複申請
           </p>
         </div>
         <button
@@ -181,7 +181,7 @@ v-else :edges="graphEdges" :nodes="graphNodes" :selected-code="selected?.code ||
                          @select="selectByCode"/>
 
         <!-- Detail modal -->
-        <UModal :open="detailOpen" @update:open="(open: boolean) => open ? (detailOpen = true) : closeDetail()">
+        <UModal :open="detailOpen" :ui="{content: 'max-w-2xl'}" @update:open="(open: boolean) => open ? (detailOpen = true) : closeDetail()">
           <template #header="{ close }">
             <div v-if="selectedLoading" class="flex-1 min-w-0 space-y-2">
               <USkeleton class="h-5 w-40"/>
@@ -239,7 +239,7 @@ aria-label="關閉"
                   <ul class="space-y-1">
                     <li>作業系統：{{ uaParsed.os?.name }} {{ uaParsed.os?.version }}</li>
                     <li>瀏覽器：{{ uaParsed.browser?.name }} {{ uaParsed.browser?.version }}</li>
-                    <li>Zebra 代碼：<span class="font-mono text-xs">{{ selected?.zebraCode }}</span></li>
+                    <li>瀏覽器辨識碼：<span class="font-mono text-xs">{{ selected?.zebraCode }}</span></li>
                     <li class="break-all">
                       使用者代理：
                       <code class="text-xs bg-slate-100 rounded px-1.5 py-0.5">{{ selected?.userAgent }}</code>
@@ -251,40 +251,41 @@ aria-label="關閉"
               <!-- Cluster analysis -->
               <div v-if="relatedApplications.length > 1" class="mt-5 pt-5 border-t border-slate-100">
                 <h3 class="font-semibold text-slate-700 mb-2">
-                  關聯申請（疑似同一人／集團，共 {{ relatedApplications.length }} 筆）
+                  關聯申請（疑似同人申請，共 {{ relatedApplications.length }} 筆）
                 </h3>
                 <div class="rounded-xl border border-slate-100 overflow-hidden">
-                  <div class="grid grid-cols-[32px_92px_minmax(80px,1fr)_150px_minmax(110px,1fr)_minmax(70px,auto)] gap-2 px-3 py-2 bg-slate-50/60 text-xs text-slate-400">
-                    <span>#</span>
-                    <span>代碼</span>
-                    <span>社群</span>
-                    <span>申請時間</span>
-                    <span>裝置</span>
-                    <span>與本筆關係</span>
-                  </div>
-                  <div class="divide-y divide-slate-100">
-                    <button
+                  <div class="overflow-x-auto">
+                    <div class="min-w-[600px]">
+                      <div class="grid grid-cols-[32px_92px_minmax(70px,1fr)_148px_minmax(170px,1.4fr)_minmax(64px,auto)] gap-2 px-3 py-2 bg-slate-50/60 text-xs text-slate-400">
+                        <span>#</span>
+                        <span>代碼</span>
+                        <span>社群</span>
+                        <span>申請時間</span>
+                        <span>裝置</span>
+                        <span>與此申請的關係</span>
+                      </div>
+                      <div class="divide-y divide-slate-100">
+                        <button
 v-for="(related, index) in relatedApplications" :key="related.code"
-                            :class="related.isSelf ?
-                              'bg-sky-50' : 'hover:bg-slate-50 cursor-pointer'"
-                            class="grid w-full text-left grid-cols-[32px_92px_minmax(80px,1fr)_150px_minmax(110px,1fr)_minmax(70px,auto)] gap-2 px-3 py-2 items-center text-sm transition-colors"
-                            @click="selectByCode(related.code)">
-                      <span class="text-xs text-slate-400 font-mono">{{ index + 1 }}</span>
-                      <span class="font-mono text-xs text-slate-800">
-                        {{ related.code }}
-                        <span v-if="related.isSelf" class="ml-1 rounded-full bg-sky-100 text-sky-700 px-1.5 py-0.5 font-sans text-[10px] font-semibold">本筆</span>
-                      </span>
-                      <span class="text-xs text-slate-500 truncate">{{ related.roomLabel || '—' }}</span>
-                      <span class="text-xs text-slate-500 truncate">{{ related.createdAt ? formatTime(related.createdAt) : '—' }}</span>
-                      <span class="text-xs text-slate-500 truncate">{{ related.device || '—' }}</span>
-                      <span class="text-xs text-rose-600 truncate">
-                        {{ related.isSelf ? '本筆' : related.relations.length ? related.relations.join('、') : '同叢集' }}
-                      </span>
-                    </button>
+                                :class="related.isSelf ?
+                                  'bg-sky-50' : 'hover:bg-slate-50 cursor-pointer'"
+                                class="grid w-full text-left grid-cols-[32px_92px_minmax(70px,1fr)_148px_minmax(170px,1.4fr)_minmax(64px,auto)] gap-2 px-3 py-2 items-center text-sm transition-colors"
+                                @click="selectByCode(related.code)">
+                          <span class="text-xs text-slate-400 font-mono">{{ index + 1 }}</span>
+                          <span class="font-mono text-xs text-slate-800">{{ related.code }}</span>
+                          <span class="text-xs text-slate-500 truncate">{{ related.roomLabel || '—' }}</span>
+                          <span class="text-xs text-slate-500 truncate">{{ related.createdAt ? formatTime(related.createdAt) : '—' }}</span>
+                          <span class="text-xs text-slate-500 truncate">{{ related.device || '—' }}</span>
+                          <span class="text-xs text-rose-600 truncate">
+                            {{ related.isSelf ? '—' : related.relations.length ? related.relations.join('、') : '同叢集' }}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <p class="mt-2 text-xs text-slate-400">
-                  排序固定依代碼，切換時位置不變；關聯依據：Zebra（瀏覽器辨識碼）、IP、網段，裝置指紋僅在同 IP 或同 Zebra 時作為補強
+                  排序固定依代碼，切換時位置不變；關聯依據：瀏覽器辨識碼、IP、網段；裝置特徵僅在同 IP 或同瀏覽器辨識碼時作為補強
                 </p>
               </div>
             </template>

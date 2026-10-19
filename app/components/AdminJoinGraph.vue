@@ -37,7 +37,7 @@ class="inline-flex items-center gap-1.5 cursor-pointer rounded-full border px-3 
         <!-- Overview: ranked suspicious clusters -->
         <template v-if="mode === 'overview'">
           <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-            <span class="text-sm font-bold text-slate-700">疑似集團排行</span>
+            <span class="text-sm font-bold text-slate-700">關聯排行</span>
             <span class="text-xs text-slate-400">{{ rankedClusters.length }} 群</span>
           </div>
           <div class="overflow-y-auto flex-1 divide-y divide-slate-100">
@@ -79,7 +79,7 @@ class="h-1 rounded-full"
             <div
 v-if="!rankedClusters.length"
                  class="px-4 py-10 text-center text-xs text-slate-400">
-              沒有偵測到疑似集團
+              沒有偵測到關聯申請
             </div>
             <button
 v-if="isolatedCount"

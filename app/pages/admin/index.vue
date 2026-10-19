@@ -59,7 +59,7 @@
             </h3>
             <!-- Description -->
             <p class="mt-2 text-sm text-slate-500 leading-relaxed">
-              總覽所有入群申請並進行審核，透過 IP、裝置與 Zebra 關聯圖辨識重複申請與可疑集團。
+              總覽所有入群申請並進行審核，透過 IP、裝置與瀏覽器特徵的關聯分析，辨識重複申請。
             </p>
           </div>
           <!-- Arrow Indicator -->
