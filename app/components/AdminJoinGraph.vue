@@ -23,7 +23,7 @@
       </span>
       <span class="inline-flex items-center gap-1">
         <span class="inline-block w-5 h-0.5 bg-violet-400"/>
-        同裝置
+        同裝置（補強）
       </span>
       <span class="inline-flex items-center gap-1">
         <span class="inline-block w-5 h-0.5 bg-teal-400"/>

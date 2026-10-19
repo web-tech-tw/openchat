@@ -158,18 +158,69 @@ v-if="application.ipGeolocation?.country"
 v-else :edges="graphEdges" :nodes="graphNodes" :selected-code="selected?.code || null"
                          @select="selectByCode"/>
 
-        <!-- Detail panel -->
-        <div v-if="selected" class="mt-6 rounded-2xl bg-white border border-slate-100 shadow-sm p-6">
-          <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <!-- Detail modal -->
+        <UModal v-model:open="detailOpen">
+          <template #header>
             <div>
-              <h2 class="text-xl font-bold text-slate-800">
-                加入代碼：<span class="font-mono">{{ selected.code }}</span>
+              <h2 class="text-lg font-bold text-slate-800">
+                加入代碼：<span class="font-mono">{{ selected?.code }}</span>
               </h2>
-              <p class="mt-1 text-sm text-slate-500">
-                {{ selected.roomLabel || selected.roomSlug }}｜申請時間：{{ formatTime(selected.createdAt) }}
+              <p class="mt-0.5 text-sm text-slate-500">
+                {{ selected?.roomLabel || selected?.roomSlug }}｜申請時間：{{ formatTime(selected?.createdAt) }}
               </p>
             </div>
-            <div v-if="selected.commitBy === null || selected.commitBy === undefined" class="flex gap-2">
+          </template>
+
+          <template #body>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
+              <div>
+                <h3 class="font-semibold text-slate-700 mb-2">網路資訊</h3>
+                <ul class="space-y-1">
+                  <li>IP 位址：{{ selected?.ipAddress }}</li>
+                  <li>IP 網段：{{ subnetOf(selected?.ipAddress || '') }}</li>
+                  <li>國家：{{ selected?.ipGeolocation?.country || '未知' }}</li>
+                  <li>城市：{{ selected?.ipGeolocation?.city || '未知' }}</li>
+                  <li>時區：{{ selected?.ipGeolocation?.timezone || '未知' }}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 class="font-semibold text-slate-700 mb-2">裝置與識別</h3>
+                <ul class="space-y-1">
+                  <li>作業系統：{{ uaParsed.os?.name }} {{ uaParsed.os?.version }}</li>
+                  <li>瀏覽器：{{ uaParsed.browser?.name }} {{ uaParsed.browser?.version }}</li>
+                  <li>Zebra 代碼：<span class="font-mono text-xs">{{ selected?.zebraCode }}</span></li>
+                  <li class="break-all">
+                    使用者代理：
+                    <code class="text-xs bg-slate-100 rounded px-1.5 py-0.5">{{ selected?.userAgent }}</code>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Cluster analysis -->
+            <div v-if="relatedApplications.length" class="mt-5 pt-5 border-t border-slate-100">
+              <h3 class="font-semibold text-slate-700 mb-2">
+                關聯申請（疑似同一人／集團，共 {{ relatedApplications.length }} 筆）
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <button
+v-for="related in relatedApplications" :key="related.code"
+                        class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-1 text-xs font-mono text-rose-700"
+                        @click="selectByCode(related.code)">
+                  {{ related.code }}
+                  <span class="font-sans text-rose-500">{{ related.relations.join('、') }}</span>
+                </button>
+              </div>
+              <p class="mt-2 text-xs text-slate-400">
+                關聯依據：Zebra（瀏覽器辨識碼）、IP、網段；裝置指紋僅在同 IP 或同 Zebra 時作為補強，權重越高越可能為同一人
+              </p>
+            </div>
+          </template>
+
+          <template #footer>
+            <div
+v-if="selected?.commitBy === null || selected?.commitBy === undefined"
+                 class="w-full flex justify-end gap-2">
               <button
 class="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold px-5 py-2"
                       @click="commit(true)">
@@ -181,56 +232,12 @@ class="rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-
                 否決
               </button>
             </div>
-            <p v-else class="text-sm text-amber-600">
-              已由 {{ commitNickname || selected.commitBy }} 於 {{ formatTime(selected.commitAt) }} 簽署
-              {{ selected.commitState ? '許可' : '否決' }}
+            <p v-else class="w-full text-right text-sm text-amber-600">
+              已由 {{ commitNickname || selected?.commitBy }} 於 {{ formatTime(selected?.commitAt) }} 簽署
+              {{ selected?.commitState ? '許可' : '否決' }}
             </p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
-            <div>
-              <h3 class="font-semibold text-slate-700 mb-2">網路資訊</h3>
-              <ul class="space-y-1">
-                <li>IP 位址：{{ selected.ipAddress }}</li>
-                <li>IP 網段：{{ subnetOf(selected.ipAddress) }}</li>
-                <li>國家：{{ selected.ipGeolocation?.country || '未知' }}</li>
-                <li>城市：{{ selected.ipGeolocation?.city || '未知' }}</li>
-                <li>時區：{{ selected.ipGeolocation?.timezone || '未知' }}</li>
-              </ul>
-            </div>
-            <div>
-              <h3 class="font-semibold text-slate-700 mb-2">裝置與識別</h3>
-              <ul class="space-y-1">
-                <li>作業系統：{{ uaParsed.os?.name }} {{ uaParsed.os?.version }}</li>
-                <li>瀏覽器：{{ uaParsed.browser?.name }} {{ uaParsed.browser?.version }}</li>
-                <li>Zebra 代碼：<span class="font-mono text-xs">{{ selected.zebraCode }}</span></li>
-                <li class="break-all">
-                  使用者代理：
-                  <code class="text-xs bg-slate-100 rounded px-1.5 py-0.5">{{ selected.userAgent }}</code>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Cluster analysis -->
-          <div v-if="relatedApplications.length" class="mt-5 pt-5 border-t border-slate-100">
-            <h3 class="font-semibold text-slate-700 mb-2">
-              關聯申請（疑似同一人／集團，共 {{ relatedApplications.length }} 筆）
-            </h3>
-            <div class="flex flex-wrap gap-2">
-              <button
-v-for="related in relatedApplications" :key="related.code"
-                      class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-1 text-xs font-mono text-rose-700"
-                      @click="selectByCode(related.code)">
-                {{ related.code }}
-                <span class="font-sans text-rose-500">{{ related.relations.join('、') }}</span>
-              </button>
-            </div>
-            <p class="mt-2 text-xs text-slate-400">
-              關聯依據：Zebra（瀏覽器辨識碼）、IP、網段、裝置指紋；權重越高越可能為同一人
-            </p>
-          </div>
-        </div>
+          </template>
+        </UModal>
       </template>
     </div>
   </div>
@@ -261,6 +268,16 @@ const graphStats = ref<Record<string, number> | null>(null);
 
 const selected = ref<any>(null);
 const commitNickname = ref<string | null>(null);
+
+const detailOpen = computed({
+  get: () => !!selected.value,
+  set: (open: boolean) => {
+    if (!open) {
+      selected.value = null;
+      commitNickname.value = null;
+    }
+  },
+});
 
 interface StateOption {
   value: string;
