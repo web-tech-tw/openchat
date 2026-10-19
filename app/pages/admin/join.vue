@@ -249,21 +249,42 @@ aria-label="關閉"
               </div>
 
               <!-- Cluster analysis -->
-              <div v-if="relatedApplications.length" class="mt-5 pt-5 border-t border-slate-100">
+              <div v-if="relatedApplications.length > 1" class="mt-5 pt-5 border-t border-slate-100">
                 <h3 class="font-semibold text-slate-700 mb-2">
                   關聯申請（疑似同一人／集團，共 {{ relatedApplications.length }} 筆）
                 </h3>
-                <div class="flex flex-wrap gap-2">
-                  <button
-v-for="related in relatedApplications" :key="related.code"
-                          class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 cursor-pointer px-3 py-1 text-xs font-mono text-rose-700"
-                          @click="selectByCode(related.code)">
-                    {{ related.code }}
-                    <span class="font-sans text-rose-500">{{ related.relations.join('、') }}</span>
-                  </button>
+                <div class="rounded-xl border border-slate-100 overflow-hidden">
+                  <div class="grid grid-cols-[32px_92px_minmax(80px,1fr)_150px_minmax(110px,1fr)_minmax(70px,auto)] gap-2 px-3 py-2 bg-slate-50/60 text-xs text-slate-400">
+                    <span>#</span>
+                    <span>代碼</span>
+                    <span>社群</span>
+                    <span>申請時間</span>
+                    <span>裝置</span>
+                    <span>與本筆關係</span>
+                  </div>
+                  <div class="divide-y divide-slate-100">
+                    <button
+v-for="(related, index) in relatedApplications" :key="related.code"
+                            :class="related.isSelf ?
+                              'bg-sky-50' : 'hover:bg-slate-50 cursor-pointer'"
+                            class="grid w-full text-left grid-cols-[32px_92px_minmax(80px,1fr)_150px_minmax(110px,1fr)_minmax(70px,auto)] gap-2 px-3 py-2 items-center text-sm transition-colors"
+                            @click="selectByCode(related.code)">
+                      <span class="text-xs text-slate-400 font-mono">{{ index + 1 }}</span>
+                      <span class="font-mono text-xs text-slate-800">
+                        {{ related.code }}
+                        <span v-if="related.isSelf" class="ml-1 rounded-full bg-sky-100 text-sky-700 px-1.5 py-0.5 font-sans text-[10px] font-semibold">本筆</span>
+                      </span>
+                      <span class="text-xs text-slate-500 truncate">{{ related.roomLabel || '—' }}</span>
+                      <span class="text-xs text-slate-500 truncate">{{ related.createdAt ? formatTime(related.createdAt) : '—' }}</span>
+                      <span class="text-xs text-slate-500 truncate">{{ related.device || '—' }}</span>
+                      <span class="text-xs text-rose-600 truncate">
+                        {{ related.isSelf ? '本筆' : related.relations.length ? related.relations.join('、') : '同叢集' }}
+                      </span>
+                    </button>
+                  </div>
                 </div>
                 <p class="mt-2 text-xs text-slate-400">
-                  關聯依據：Zebra（瀏覽器辨識碼）、IP、網段；裝置指紋僅在同 IP 或同 Zebra 時作為補強，權重越高越可能為同一人
+                  排序固定依代碼，切換時位置不變；關聯依據：Zebra（瀏覽器辨識碼）、IP、網段，裝置指紋僅在同 IP 或同 Zebra 時作為補強
                 </p>
               </div>
             </template>
@@ -519,23 +540,37 @@ const stateBadgeClass = (application: any) => {
 };
 
 const relatedApplications = computed(() => {
-  if (!selected.value?.code) return [];
-  const codes = new Set<string>();
+  const selfCode = selected.value?.code;
+  if (!selfCode) return [];
+
+  // Collect the relations between each member and the selected application
   const relations = new Map<string, string[]>();
   for (const edge of graphEdges.value) {
-    if (edge.source === selected.value.code) {
-      codes.add(edge.target);
-      relations.set(edge.target, edge.relations);
-    } else if (edge.target === selected.value.code) {
-      codes.add(edge.source);
-      relations.set(edge.source, edge.relations);
-    }
+    if (edge.source !== selfCode && edge.target !== selfCode) continue;
+    const other = edge.source === selfCode ? edge.target : edge.source;
+    if (other === selfCode) continue;
+    relations.set(other, [
+      ...new Set([...(relations.get(other) || []), ...edge.relations]),
+    ]);
   }
-  codes.delete(selected.value.code);
-  return [...codes].map((code) => ({
-    code,
-    relations: relations.get(code) || [],
-  }));
+
+  // List the whole cluster (including the selected one), fallback to
+  // the direct neighbours when the selected one is missing from the graph
+  const selfNode = graphNodes.value.find((node) => node.code === selfCode);
+  const members = selfNode ?
+    graphNodes.value.filter((node) => node.clusterId === selfNode.clusterId) :
+    [selfCode, ...relations.keys()].map((code) => ({code}));
+
+  return members.
+      map((member) => ({
+        code: member.code,
+        roomLabel: member.roomLabel || '',
+        device: member.device || '',
+        createdAt: member.createdAt || null,
+        isSelf: member.code === selfCode,
+        relations: member.code === selfCode ? [] : relations.get(member.code) || [],
+      })).
+      sort((a, b) => a.code.localeCompare(b.code));
 });
 
 const getUserNickname = async (userId: string) => {
