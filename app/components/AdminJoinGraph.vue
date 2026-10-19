@@ -29,62 +29,44 @@
         <span class="inline-block w-5 h-0.5 bg-teal-400"/>
         同網段
       </span>
+      <span class="basis-full text-slate-400">
+        滾輪或雙指縮放、拖曳平移；點叢集展開成員，點申請節點查看詳情
+      </span>
     </div>
     <div class="relative w-full bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <svg
-          class="w-full block"
-          preserveAspectRatio="xMidYMid meet"
-          viewBox="0 0 1000 640"
-          @mouseleave="hoveredCode = null"
-      >
-        <g
-v-for="edge in renderedEdges" :key="`${edge.source}-${edge.target}-${edge.relations[0]}`"
-           :opacity="edgeOpacity(edge)">
-          <title>{{ edge.source }} ↔ {{ edge.target }}：{{ edge.relations.join('、') }}（權重 {{ edge.weight }}）</title>
-          <line
-:stroke="edgeColor(edge)" :stroke-width="edgeWidth(edge)" :x1="edge.x1" :x2="edge.x2"
-                :y1="edge.y1" :y2="edge.y2" class="transition-opacity duration-150"/>
-        </g>
-        <g v-for="node in renderedNodes" :key="node.code">
-          <circle
-:cx="node.x" :cy="node.y"
-                  :fill="nodeColor(node)"
-                  :opacity="nodeOpacity(node)"
-                  :r="nodeRadius(node)"
-                  :stroke="node.code === selectedCode ? '#0f172a' : '#ffffff'"
-                  stroke-width="2"
-                  class="cursor-pointer transition-all duration-150"
-                  @click="$emit('select', node.code)"
-                  @mouseenter="hoveredCode = node.code"/>
-          <text
-v-if="node.code === hoveredCode || node.code === selectedCode || node.clusterSize >= 3"
-               :fill="node.code === selectedCode ? '#0f172a' : '#64748b'"
-               :font-size="node.code === selectedCode ? 12 : 10"
-               :x="node.x" :y="node.y - nodeRadius(node) - 4"
-               class="pointer-events-none select-none"
-               text-anchor="middle">{{ displayedLabel(node) }}</text>
-        </g>
-      </svg>
       <div
-v-if="hoveredNode"
-           :style="tooltipStyle"
-           class="absolute z-10 pointer-events-none max-w-xs bg-slate-900/95 text-white text-xs rounded-lg shadow-lg px-3 py-2 space-y-1">
-        <p class="font-semibold">{{ hoveredNode.roomLabel }}</p>
-        <p>代碼：{{ hoveredNode.code }}</p>
-        <p>IP：{{ hoveredNode.ipAddress }}（{{ hoveredNode.ipGeolocation?.country || '未知' }}{{ hoveredNode.ipGeolocation?.city ? ' ' + hoveredNode.ipGeolocation.city : '' }}）</p>
-        <p>裝置：{{ hoveredNode.device }}</p>
-        <p>
-          風險：{{ hoveredNode.riskLevel }}｜叢集 {{ hoveredNode.clusterSize }} 筆
-          <span v-if="hoveredNode.clusterMultiRoom">｜跨社群</span>
-          <span v-if="hoveredNode.clusterBurst">｜短時間密集</span>
-        </p>
+v-if="mode === 'cluster'"
+           class="absolute top-3 left-3 z-10 flex items-center gap-2">
+        <button
+class="inline-flex items-center gap-1.5 rounded-full bg-white/95 border border-slate-200 shadow-sm cursor-pointer px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                @click="backToOverview">
+          <UIcon class="h-3.5 w-3.5" name="i-heroicons-arrow-left"/>
+          返回總覽
+        </button>
+        <span class="rounded-full bg-slate-900/85 text-white px-3 py-1.5 text-xs font-semibold">
+          叢集 {{ activeClusterId }}（{{ activeClusterSize }} 筆）
+        </span>
       </div>
+      <div
+v-if="!nodes.length"
+           class="flex items-center justify-center h-64 text-sm text-slate-400">
+        沒有可分析的申請資料
+      </div>
+      <div
+v-show="nodes.length"
+           ref="chartEl"
+           class="w-full"
+           style="height: 640px;"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue';
+import * as echarts from 'echarts/core';
+import {GraphChart} from 'echarts/charts';
+import {TooltipComponent} from 'echarts/components';
+import {CanvasRenderer} from 'echarts/renderers';
 
 export interface AdminJoinGraphNode {
   code: string;
@@ -110,201 +92,301 @@ export interface AdminJoinGraphEdge {
   weight: number;
 }
 
+echarts.use([GraphChart, TooltipComponent, CanvasRenderer]);
+
 const props = defineProps<{
   nodes: AdminJoinGraphNode[];
   edges: AdminJoinGraphEdge[];
   selectedCode: string | null;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [code: string];
 }>();
 
-interface LayoutNode extends AdminJoinGraphNode {
-  x: number;
-  y: number;
-}
+const mode = ref<'overview' | 'cluster'>('overview');
+const activeClusterId = ref<number | null>(null);
+const chartEl = ref<HTMLDivElement | null>(null);
 
-interface RenderedEdge {
-  source: string;
-  target: string;
-  relations: string[];
-  weight: number;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-}
+let chart: echarts.EChartsType | null = null;
 
-const width = 1000;
-const height = 640;
-
-const layoutNodes = ref<LayoutNode[]>([]);
-const hoveredCode = ref<string | null>(null);
-
-const runSimulation = () => {
-  const nodeCount = props.nodes.length;
-  if (!nodeCount) {
-    layoutNodes.value = [];
-    return;
-  }
-
-  // Initialize on a circle
-  const radius = Math.min(width, height) * 0.35;
-  const simNodes = props.nodes.map((node, index) => ({
-    ...node,
-    x: width / 2 + radius * Math.cos((index / nodeCount) * 2 * Math.PI),
-    y: height / 2 + radius * Math.sin((index / nodeCount) * 2 * Math.PI),
-    vx: 0,
-    vy: 0,
-  }));
-  const nodeMap = new Map(simNodes.map((node, index) => [node.code, index]));
-  const links = props.edges.
-      map((edge) => ({
-        source: nodeMap.get(edge.source),
-        target: nodeMap.get(edge.target),
-        weight: edge.weight,
-      })).
-      filter((link) => link.source !== undefined && link.target !== undefined);
-
-  const iterations = nodeCount > 200 ? 150 : 300;
-  for (let step = 0; step < iterations; step++) {
-    const cooling = 1 - step / iterations;
-
-    // Repulsion between every pair
-    for (let i = 0; i < nodeCount; i++) {
-      for (let j = i + 1; j < nodeCount; j++) {
-        const dx = simNodes[j].x - simNodes[i].x;
-        const dy = simNodes[j].y - simNodes[i].y;
-        const distanceSquared = Math.max(dx * dx + dy * dy, 25);
-        const force = (1600 / distanceSquared) * cooling;
-        const distance = Math.sqrt(distanceSquared);
-        const fx = (dx / distance) * force;
-        const fy = (dy / distance) * force;
-        simNodes[i].vx -= fx;
-        simNodes[i].vy -= fy;
-        simNodes[j].vx += fx;
-        simNodes[j].vy += fy;
-      }
-    }
-
-    // Attraction along edges
-    for (const link of links) {
-      const source = simNodes[link.source as number];
-      const target = simNodes[link.target as number];
-      const dx = target.x - source.x;
-      const dy = target.y - source.y;
-      const distance = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
-      const springLength = 80;
-      const strength = (0.012 + link.weight * 0.008) * cooling;
-      const force = (distance - springLength) * strength;
-      const fx = (dx / distance) * force;
-      const fy = (dy / distance) * force;
-      source.vx += fx;
-      source.vy += fy;
-      target.vx -= fx;
-      target.vy -= fy;
-    }
-
-    // Gravity to center and integrate
-    for (const node of simNodes) {
-      node.vx += (width / 2 - node.x) * 0.008;
-      node.vy += (height / 2 - node.y) * 0.008;
-      node.vx *= 0.82;
-      node.vy *= 0.82;
-      node.x += node.vx;
-      node.y += node.vy;
-    }
-  }
-
-  layoutNodes.value = simNodes.map((node) => ({
-    ...node,
-    x: Math.min(Math.max(node.x, 30), width - 30),
-    y: Math.min(Math.max(node.y, 30), height - 30),
-  }));
-};
-
-watch(() => [props.nodes, props.edges], runSimulation, {immediate: true});
-
-const renderedNodes = computed(() => layoutNodes.value);
-
-const renderedEdges = computed<RenderedEdge[]>(() => {
-  const nodeMap = new Map(layoutNodes.value.map((node) => [node.code, node]));
-  return props.edges.flatMap((edge) => {
-    const source = nodeMap.get(edge.source);
-    const target = nodeMap.get(edge.target);
-    if (!source || !target) return [];
-    return [{
-      ...edge,
-      x1: source.x,
-      y1: source.y,
-      x2: target.x,
-      y2: target.y,
-    }];
-  });
-});
-
-const hoveredNode = computed(() =>
-  layoutNodes.value.find((node) => node.code === hoveredCode.value) || null,
+const activeClusterSize = computed(() =>
+  props.nodes.filter((node) => node.clusterId === activeClusterId.value).length,
 );
 
-const relatedCodes = computed(() => {
-  if (!hoveredCode.value) return null;
-  const codes = new Set<string>([hoveredCode.value]);
-  for (const edge of props.edges) {
-    if (edge.source === hoveredCode.value) codes.add(edge.target);
-    if (edge.target === hoveredCode.value) codes.add(edge.source);
-  }
-  return codes;
-});
-
-const nodeColor = (node: LayoutNode) => {
-  if (node.riskLevel === 'high') return '#ef4444';
-  if (node.riskLevel === 'medium') return '#fbbf24';
+const colorOfRisk = (riskLevel: string) => {
+  if (riskLevel === 'high') return '#ef4444';
+  if (riskLevel === 'medium') return '#fbbf24';
   return '#cbd5e1';
 };
 
-const nodeRadius = (node: LayoutNode) =>
-  5 + Math.min(node.clusterSize - 1, 8);
-
-const nodeOpacity = (node: LayoutNode) => {
-  if (!relatedCodes.value) return 1;
-  return relatedCodes.value.has(node.code) ? 1 : 0.15;
-};
-
-const edgeColor = (edge: RenderedEdge) => {
-  if (edge.relations.includes('zebra')) return '#f43f5e';
-  if (edge.relations.includes('ip')) return '#fb923c';
-  if (edge.relations.includes('device')) return '#a78bfa';
-  if (edge.relations.includes('subnet')) return '#2dd4bf';
+const colorOfRelation = (relations: string[]) => {
+  if (relations.includes('zebra')) return '#f43f5e';
+  if (relations.includes('ip')) return '#fb923c';
+  if (relations.includes('device')) return '#a78bfa';
+  if (relations.includes('subnet')) return '#2dd4bf';
   return '#94a3b8';
 };
 
-const edgeWidth = (edge: RenderedEdge) => Math.min(1 + edge.weight * 0.4, 4);
+const buildTooltip = (params: any) => {
+  if (params.dataType === 'edge') {
+    const data = params.data;
+    const relations = data.relations?.length ? `：${data.relations.join('、')}` : '';
+    return `<b>${data.sourceName} ↔ ${data.targetName}</b>${relations}（權重 ${data.weight}）`;
+  }
+  if (params.dataType !== 'node') return '';
 
-const edgeOpacity = (edge: RenderedEdge) => {
-  if (!hoveredCode.value) return Math.min(0.25 + edge.weight * 0.08, 0.8);
-  const isRelated = edge.source === hoveredCode.value ||
-      edge.target === hoveredCode.value;
-  return isRelated ? 0.9 : 0.06;
+  const data = params.data;
+  if (data.kind === 'cluster') {
+    const flags = [
+      data.multiRoom ? '跨社群' : '',
+      data.burst ? '短時間密集' : '',
+    ].filter(Boolean).join('｜');
+    return [
+      `<b>叢集（${data.size} 筆申請）</b>`,
+      `社群：${data.rooms.join('、')}`,
+      `風險：${data.riskLevel}${flags ? '｜' + flags : ''}`,
+      '點擊展開叢集成員',
+    ].join('<br/>');
+  }
+
+  const node = props.nodes.find((candidate) => candidate.code === data.code);
+  if (!node) return '';
+  const geo = node.ipGeolocation as Record<string, string> | null | undefined;
+  const flags = [
+    node.clusterMultiRoom ? '跨社群' : '',
+    node.clusterBurst ? '短時間密集' : '',
+  ].filter(Boolean).join('｜');
+  return [
+    `<b>${node.roomLabel}</b>`,
+    `代碼：${node.code}`,
+    `IP：${node.ipAddress}（${geo?.country || '未知'}${geo?.city ? ' ' + geo.city : ''}）`,
+    `裝置：${node.device}`,
+    `風險：${node.riskLevel}｜叢集 ${node.clusterSize} 筆${flags ? '｜' + flags : ''}`,
+  ].join('<br/>');
 };
 
-const displayedLabel = (node: LayoutNode) => {
-  if (node.clusterSize >= 2) return `${node.code} ×${node.clusterSize}`;
-  return node.code;
-};
+const buildOption = (): any => {
+  const isClusterMode = mode.value === 'cluster';
+  let data: any[] = [];
+  let links: any[] = [];
 
-const tooltipStyle = computed(() => {
-  const node = hoveredNode.value;
-  if (!node) return {};
-  const leftPercent = (node.x / width) * 100;
-  const topPercent = (node.y / height) * 100;
+  if (isClusterMode) {
+    const members = props.nodes.
+        filter((node) => node.clusterId === activeClusterId.value);
+    const memberCodes = new Set(members.map((member) => member.code));
+    data = members.map((node) => ({
+      id: node.code,
+      name: node.code,
+      kind: 'node',
+      code: node.code,
+      symbolSize: 2 * (5 + Math.min(node.clusterSize - 1, 8)),
+      itemStyle: {
+        color: colorOfRisk(node.riskLevel),
+        borderColor: node.code === props.selectedCode ? '#0f172a' : '#ffffff',
+        borderWidth: node.code === props.selectedCode ? 3 : 2,
+      },
+      label: {
+        show: true,
+        position: 'right',
+        color: node.code === props.selectedCode ? '#0f172a' : '#64748b',
+        fontSize: 10,
+      },
+    }));
+    links = props.edges.
+        filter((edge) => memberCodes.has(edge.source) && memberCodes.has(edge.target)).
+        map((edge) => ({
+          source: edge.source,
+          target: edge.target,
+          sourceName: edge.source,
+          targetName: edge.target,
+          relations: edge.relations,
+          weight: edge.weight,
+          lineStyle: {
+            color: colorOfRelation(edge.relations),
+            width: Math.min(1 + edge.weight * 0.4, 4),
+            opacity: Math.min(0.25 + edge.weight * 0.08, 0.8),
+          },
+        }));
+  } else {
+    // One item per cluster (or per isolated application)
+    const clusters = new Map<number, AdminJoinGraphNode[]>();
+    for (const node of props.nodes) {
+      if (!clusters.has(node.clusterId)) clusters.set(node.clusterId, []);
+      clusters.get(node.clusterId)?.push(node);
+    }
+    data = [...clusters.entries()].map(([clusterId, members]) => {
+      if (members.length >= 2) {
+        return {
+          id: `cluster-${clusterId}`,
+          name: `cluster-${clusterId}`,
+          kind: 'cluster',
+          clusterId,
+          size: members.length,
+          riskLevel: members[0].riskLevel,
+          multiRoom: members[0].clusterMultiRoom ?? false,
+          burst: members[0].clusterBurst ?? false,
+          rooms: [...new Set(members.map((member) => member.roomLabel))],
+          symbolSize: 2 * (12 + Math.min(members.length * 2.5, 26)),
+          itemStyle: {
+            color: colorOfRisk(members[0].riskLevel),
+            borderColor: '#ffffff',
+            borderWidth: 2,
+          },
+          label: {
+            show: true,
+            position: 'inside',
+            color: '#ffffff',
+            fontSize: 13,
+            fontWeight: 'bold',
+          },
+        };
+      }
+      const node = members[0];
+      return {
+        id: node.code,
+        name: node.code,
+        kind: 'single',
+        code: node.code,
+        symbolSize: 10,
+        itemStyle: {
+          color: colorOfRisk(node.riskLevel),
+          borderColor: node.code === props.selectedCode ? '#0f172a' : '#ffffff',
+          borderWidth: node.code === props.selectedCode ? 3 : 2,
+        },
+        label: {
+          show: true,
+          position: 'right',
+          color: '#64748b',
+          fontSize: 10,
+        },
+      };
+    });
+
+    // Aggregate the edges between clusters
+    const codeToCluster = new Map(props.nodes.map((node) => [node.code, node.clusterId]));
+    const keyOfCluster = (clusterId: number) => {
+      const members = clusters.get(clusterId) || [];
+      return members.length >= 2 ? `cluster-${clusterId}` : members[0]?.code || '';
+    };
+    const linkMap = new Map<string, any>();
+    for (const edge of props.edges) {
+      const sourceCluster = codeToCluster.get(edge.source);
+      const targetCluster = codeToCluster.get(edge.target);
+      if (sourceCluster === undefined || targetCluster === undefined) continue;
+      if (sourceCluster === targetCluster) continue;
+      const sourceKey = keyOfCluster(sourceCluster);
+      const targetKey = keyOfCluster(targetCluster);
+      if (!sourceKey || !targetKey) continue;
+      const pairKey = `${sourceKey}-${targetKey}`;
+      if (!linkMap.has(pairKey)) {
+        linkMap.set(pairKey, {
+          source: sourceKey,
+          target: targetKey,
+          sourceName: sourceKey,
+          targetName: targetKey,
+          relations: [],
+          weight: 0,
+        });
+      }
+      const link = linkMap.get(pairKey)!;
+      link.relations = [...new Set([...link.relations, ...edge.relations])];
+      link.weight += edge.weight;
+    }
+    links = [...linkMap.values()].map((link) => ({
+      ...link,
+      lineStyle: {
+        color: '#94a3b8',
+        width: Math.min(1 + link.weight * 0.2, 3),
+        opacity: 0.4,
+      },
+    }));
+  }
+
   return {
-    left: `${leftPercent}%`,
-    top: `${topPercent}%`,
-    transform: leftPercent > 70 ?
-      'translate(calc(-100% - 12px), -50%)' :
-      'translate(12px, -50%)',
+    tooltip: {
+      trigger: 'item',
+      formatter: buildTooltip,
+      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+      borderWidth: 0,
+      textStyle: {color: '#ffffff', fontSize: 12},
+    },
+    series: [{
+      id: 'graph',
+      type: 'graph',
+      layout: 'force',
+      roam: true,
+      force: {
+        repulsion: isClusterMode ? 500 : 2000,
+        edgeLength: isClusterMode ? 90 : [100, 220],
+        gravity: 0.1,
+      },
+      label: {show: true},
+      emphasis: {focus: 'adjacency'},
+      data,
+      links,
+    }],
   };
+};
+
+const refreshOption = () => {
+  if (!chart) return;
+  chart.setOption(buildOption(), {notMerge: true});
+};
+
+const onChartClick = (params: any) => {
+  if (params.dataType !== 'node') return;
+  if (params.data.kind === 'cluster') {
+    activeClusterId.value = params.data.clusterId;
+    mode.value = 'cluster';
+    return;
+  }
+  if (params.data.code) {
+    emit('select', params.data.code);
+  }
+};
+
+const backToOverview = () => {
+  mode.value = 'overview';
+  activeClusterId.value = null;
+};
+
+const resizeHandler = () => chart?.resize();
+
+onMounted(() => {
+  if (!chartEl.value) return;
+  chart = echarts.init(chartEl.value, undefined, {renderer: 'canvas'});
+  chart.on('click', onChartClick);
+  chart.getZr().on('mousemove', (event: any) => {
+    const target = event.target;
+    if (target && (target.dataType === 'node' || target.dataType === 'edge')) {
+      chart?.getZr().setCursorStyle('pointer');
+    } else {
+      chart?.getZr().setCursorStyle('default');
+    }
+  });
+  refreshOption();
+  window.addEventListener('resize', resizeHandler);
 });
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeHandler);
+  chart?.dispose();
+  chart = null;
+});
+
+watch(() => [props.nodes, props.edges], () => {
+  if (mode.value === 'cluster') {
+    // Back to overview when the active cluster is gone after data refresh
+    if (!props.nodes.some((node) => node.clusterId === activeClusterId.value)) {
+      backToOverview();
+      return;
+    }
+  }
+  refreshOption();
+});
+
+watch(() => props.selectedCode, refreshOption);
+
+watch([mode, activeClusterId], refreshOption);
 </script>

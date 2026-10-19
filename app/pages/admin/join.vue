@@ -74,7 +74,9 @@ v-for="option in stateOptions" :key="option.value"
 v-model="roomFilter"
                   class="rounded-full bg-white border border-slate-200 shadow-sm px-4 py-1.5 text-sm text-slate-600">
             <option value="">全部社群</option>
-            <option v-for="room in roomOptions" :key="room" :value="room">{{ room }}</option>
+            <option
+v-for="room in roomOptions" :key="room.slug" :value="room.slug"
+            >{{ room.label }}</option>
           </select>
           <div class="flex-1 min-w-[200px] max-w-sm flex rounded-full bg-white shadow-sm border border-slate-200">
             <input
@@ -98,59 +100,71 @@ v-model="query"
           </div>
         </div>
 
-        <!-- List view -->
-        <div v-if="viewMode === 'list'" class="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-x-auto">
-          <table class="w-full text-sm text-slate-600">
-            <thead>
-              <tr class="text-left text-xs uppercase tracking-wide text-slate-400 border-b border-slate-100">
-                <th class="px-4 py-3">代碼</th>
-                <th class="px-4 py-3">社群</th>
-                <th class="px-4 py-3">申請時間</th>
-                <th class="px-4 py-3">IP 位置</th>
-                <th class="px-4 py-3">裝置</th>
-                <th class="px-4 py-3">狀態</th>
-                <th class="px-4 py-3">風險</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-v-for="application in filteredApplications" :key="application.code"
-                  :class="application.code === selected?.code ?
-                    'bg-sky-50' : 'hover:bg-slate-50 border-t border-slate-100'"
-                  class="cursor-pointer transition-colors"
-                  @click="selectApplication(application)">
-                <td class="px-4 py-3 font-mono text-slate-900">{{ application.code }}</td>
-                <td class="px-4 py-3">{{ application.roomLabel || application.roomSlug }}</td>
-                <td class="px-4 py-3">{{ formatTime(application.createdAt) }}</td>
-                <td class="px-4 py-3">
-                  {{ application.ipAddress }}
-                  <span
-v-if="application.ipGeolocation?.country"
-                        class="ml-1 text-xs text-slate-400">
-                    {{ application.ipGeolocation.country }}{{ application.ipGeolocation.city ? '・' + application.ipGeolocation.city : '' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-xs">{{ formatDevice(application) }}</td>
-                <td class="px-4 py-3">
-                  <span
-:class="stateBadgeClass(application)"
-                        class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                    {{ stateLabel(application) }}
-                  </span>
-                </td>
-                <td class="px-4 py-3">
-                  <span
-:class="riskBadgeClass(riskOf(application.code))"
-                        class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                    {{ riskLabel(riskOf(application.code)) }}
-                  </span>
-                </td>
-              </tr>
-              <tr v-if="!filteredApplications.length">
-                <td class="px-4 py-8 text-center text-slate-400" colspan="7">沒有符合條件的申請</td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- List view (virtualized) -->
+        <div v-if="viewMode === 'list'" class="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <div class="min-w-[900px]">
+              <div class="grid grid-cols-[100px_130px_160px_180px_150px_90px_110px] gap-2 px-4 py-3 text-left text-xs uppercase tracking-wide text-slate-400 bg-slate-50/60 border-b border-slate-100">
+                <span>代碼</span>
+                <span>社群</span>
+                <span>申請時間</span>
+                <span>IP 位置</span>
+                <span>裝置</span>
+                <span>狀態</span>
+                <span>風險</span>
+              </div>
+              <div
+v-if="!filteredApplications.length"
+                   class="flex items-center justify-center h-40 text-sm text-slate-400">
+                沒有符合條件的申請
+              </div>
+              <VList
+v-else :data="filteredApplications" :item-size="52"
+                      style="height: 540px;"
+                      @scroll-end="loadNextPage">
+                <template #default="{item}">
+                  <div
+:class="item.code === selected?.code ?
+                        'bg-sky-50' : 'hover:bg-slate-50 border-t border-slate-100'"
+                       class="grid grid-cols-[100px_130px_160px_180px_150px_90px_110px] gap-2 px-4 py-3.5 items-center cursor-pointer transition-colors text-sm"
+                       @click="selectApplication(item)">
+                    <span class="font-mono text-slate-900">{{ item.code }}</span>
+                    <span class="truncate">{{ item.roomLabel || item.roomSlug }}</span>
+                    <span class="text-xs">{{ formatTime(item.createdAt) }}</span>
+                    <span>
+                      <span class="block truncate">{{ item.ipAddress }}</span>
+                      <span
+v-if="item.ipGeolocation?.country"
+                            class="block text-xs text-slate-400 truncate">
+                        {{ item.ipGeolocation.country }}{{ item.ipGeolocation.city ? '・' + item.ipGeolocation.city : '' }}
+                      </span>
+                    </span>
+                    <span class="text-xs truncate">{{ formatDevice(item) }}</span>
+                    <span>
+                      <span
+:class="stateBadgeClass(item)"
+                            class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                        {{ stateLabel(item) }}
+                      </span>
+                    </span>
+                    <span>
+                      <span
+:class="riskBadgeClass(riskOf(item.code))"
+                            class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                        {{ riskLabel(riskOf(item.code)) }}
+                      </span>
+                    </span>
+                  </div>
+                </template>
+              </VList>
+            </div>
+          </div>
+          <div class="flex items-center justify-between px-4 py-2 border-t border-slate-100 text-xs text-slate-400">
+            <span>已載入 {{ filteredApplications.length }} / {{ stats?.total ?? 0 }} 筆</span>
+            <span v-if="loadingMore">載入中…</span>
+            <span v-else-if="!nextCursor">已載入全部</span>
+            <span v-else>捲動到底自動載入更多</span>
+          </div>
         </div>
 
         <!-- Graph view -->
@@ -278,8 +292,9 @@ class="rounded-full bg-red-500 hover:bg-red-600 cursor-pointer text-white text-s
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import uaParser from 'ua-parser-js';
+import {VList} from 'virtua/vue';
 import dayjs from 'dayjs';
 
 const config = useRuntimeConfig();
@@ -341,30 +356,96 @@ const formatDevice = (application: any) => {
   return `${os?.name || '?'} / ${browser?.name || '?'}`;
 };
 
+const roomOptions = ref<{slug: string; label: string}[]>([]);
+const nextCursor = ref<string | null>(null);
+const loadingMore = ref(false);
+
+const listSearchParams = (cursor: string | null) => {
+  const searchParams: Record<string, string> = {limit: '100'};
+  if (cursor) {
+    searchParams.cursor = cursor;
+  }
+  if (stateFilter.value !== 'all') {
+    searchParams.state = stateFilter.value;
+  }
+  if (roomFilter.value) {
+    searchParams.room = roomFilter.value;
+  }
+  return searchParams;
+};
+
+const loadListPage = async (cursor: string | null) => {
+  const response = await api?.get('applications/list', {
+    searchParams: listSearchParams(cursor),
+  }).json<any>();
+  const page = response?.applications || [];
+  if (cursor) {
+    applications.value = [...applications.value, ...page];
+  } else {
+    applications.value = page;
+    if (selected.value?.code) {
+      const refreshed = applications.value.find(
+          (application) => application.code === selected.value.code,
+      );
+      if (refreshed) {
+        selected.value = refreshed;
+      }
+    }
+  }
+  stats.value = response?.stats || null;
+  nextCursor.value = response?.nextCursor || null;
+
+  // Accumulate the room options across pages
+  const optionMap = new Map(roomOptions.value.map((room) => [room.slug, room]));
+  for (const application of page) {
+    if (!optionMap.has(application.roomSlug)) {
+      optionMap.set(application.roomSlug, {
+        slug: application.roomSlug,
+        label: application.roomLabel || application.roomSlug,
+      });
+    }
+  }
+  roomOptions.value = [...optionMap.values()].
+      sort((a, b) => a.label.localeCompare(b.label));
+};
+
+const loadNextPage = async () => {
+  if (!api || !nextCursor.value || loadingMore.value) return;
+  loadingMore.value = true;
+  try {
+    await loadListPage(nextCursor.value);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loadingMore.value = false;
+  }
+};
+
+const resetList = async () => {
+  nextCursor.value = null;
+  try {
+    await loadListPage(null);
+  } catch (e) {
+    status.value = '載入資料失敗';
+    console.error(e);
+  }
+};
+
+const loadGraph = async () => {
+  const response = await api?.get('applications/graph', {
+    searchParams: {limit: 500},
+  }).json<any>();
+  graphNodes.value = response?.nodes || [];
+  graphEdges.value = response?.edges || [];
+  graphStats.value = response?.stats || null;
+};
+
 const load = async () => {
   if (!api) return;
   loading.value = true;
   status.value = null;
   try {
-    const [listResponse, graphResponse] = await Promise.all([
-      api.get('applications/list', {
-        searchParams: {limit: 200},
-      }).json<any>(),
-      api.get('applications/graph', {
-        searchParams: {limit: 500},
-      }).json<any>(),
-    ]);
-    applications.value = listResponse?.applications || [];
-    stats.value = listResponse?.stats || null;
-    graphNodes.value = graphResponse?.nodes || [];
-    graphEdges.value = graphResponse?.edges || [];
-    graphStats.value = graphResponse?.stats || null;
-    if (selected.value?.code) {
-      const refreshed = applications.value.find(
-          (application) => application.code === selected.value.code,
-      );
-      selected.value = refreshed || selected.value;
-    }
+    await Promise.all([resetList(), loadGraph()]);
   } catch (e: any) {
     status.value = '載入資料失敗';
     console.error(e);
@@ -373,30 +454,19 @@ const load = async () => {
   }
 };
 
-const filteredApplications = computed(() => {
-  return applications.value.filter((application) => {
-    if (stateFilter.value === 'pending' && application.commitState !== undefined && application.commitState !== null) {
-      return false;
-    }
-    if (stateFilter.value === 'approved' && application.commitState !== true) {
-      return false;
-    }
-    if (stateFilter.value === 'rejected' && application.commitState !== false) {
-      return false;
-    }
-    if (roomFilter.value && application.roomSlug !== roomFilter.value) {
-      return false;
-    }
-    if (query.value && !application.code.includes(query.value.trim())) {
-      return false;
-    }
-    return true;
-  });
+watch([stateFilter, roomFilter], () => {
+  if (access.value) {
+    resetList();
+  }
 });
 
-const roomOptions = computed(() =>
-  [...new Set(applications.value.map((application) => application.roomLabel))].sort(),
-);
+const filteredApplications = computed(() => {
+  const keyword = query.value.trim();
+  if (!keyword) return applications.value;
+  return applications.value.filter(
+      (application) => application.code.includes(keyword),
+  );
+});
 
 const riskOf = (code: string) => {
   const node = graphNodes.value.find((graphNode) => graphNode.code === code);
