@@ -159,75 +159,109 @@ v-else :edges="graphEdges" :nodes="graphNodes" :selected-code="selected?.code ||
                          @select="selectByCode"/>
 
         <!-- Detail modal -->
-        <UModal v-model:open="detailOpen">
-          <template #header>
-            <div>
+        <UModal :open="detailOpen" @update:open="(open: boolean) => open ? (detailOpen = true) : closeDetail()">
+          <template #header="{ close }">
+            <div v-if="selectedLoading" class="flex-1 min-w-0 space-y-2">
+              <USkeleton class="h-5 w-40"/>
+              <USkeleton class="h-3.5 w-56"/>
+            </div>
+            <div v-else class="flex-1 min-w-0">
               <h2 class="text-lg font-bold text-slate-800">
                 加入代碼：<span class="font-mono">{{ selected?.code }}</span>
               </h2>
-              <p class="mt-0.5 text-sm text-slate-500">
-                {{ selected?.roomLabel || selected?.roomSlug }}｜申請時間：{{ formatTime(selected?.createdAt) }}
-              </p>
+              <p class="mt-0.5 text-sm text-slate-500">{{ selected?.roomLabel || selected?.roomSlug }}</p>
+              <p class="mt-0.5 text-sm text-slate-500">申請時間：{{ formatTime(selected?.createdAt) }}</p>
             </div>
+            <UButton
+aria-label="關閉"
+                    class="cursor-pointer"
+                    color="neutral"
+                    icon="i-heroicons-x-mark"
+                    variant="ghost"
+                    @click="close"/>
           </template>
 
           <template #body>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
-              <div>
-                <h3 class="font-semibold text-slate-700 mb-2">網路資訊</h3>
-                <ul class="space-y-1">
-                  <li>IP 位址：{{ selected?.ipAddress }}</li>
-                  <li>IP 網段：{{ subnetOf(selected?.ipAddress || '') }}</li>
-                  <li>國家：{{ selected?.ipGeolocation?.country || '未知' }}</li>
-                  <li>城市：{{ selected?.ipGeolocation?.city || '未知' }}</li>
-                  <li>時區：{{ selected?.ipGeolocation?.timezone || '未知' }}</li>
-                </ul>
+            <div v-if="selectedLoading" class="space-y-5">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div v-for="column in 2" :key="column" class="space-y-2.5">
+                  <USkeleton class="h-4 w-24"/>
+                  <USkeleton class="h-3.5 w-full"/>
+                  <USkeleton class="h-3.5 w-5/6"/>
+                  <USkeleton class="h-3.5 w-2/3"/>
+                  <USkeleton class="h-3.5 w-3/4"/>
+                </div>
               </div>
-              <div>
-                <h3 class="font-semibold text-slate-700 mb-2">裝置與識別</h3>
-                <ul class="space-y-1">
-                  <li>作業系統：{{ uaParsed.os?.name }} {{ uaParsed.os?.version }}</li>
-                  <li>瀏覽器：{{ uaParsed.browser?.name }} {{ uaParsed.browser?.version }}</li>
-                  <li>Zebra 代碼：<span class="font-mono text-xs">{{ selected?.zebraCode }}</span></li>
-                  <li class="break-all">
-                    使用者代理：
-                    <code class="text-xs bg-slate-100 rounded px-1.5 py-0.5">{{ selected?.userAgent }}</code>
-                  </li>
-                </ul>
+              <div class="pt-5 border-t border-slate-100 space-y-3">
+                <USkeleton class="h-4 w-48"/>
+                <div class="flex flex-wrap gap-2">
+                  <USkeleton v-for="chip in 3" :key="chip" class="h-7 w-28 !rounded-full"/>
+                </div>
               </div>
             </div>
 
-            <!-- Cluster analysis -->
-            <div v-if="relatedApplications.length" class="mt-5 pt-5 border-t border-slate-100">
-              <h3 class="font-semibold text-slate-700 mb-2">
-                關聯申請（疑似同一人／集團，共 {{ relatedApplications.length }} 筆）
-              </h3>
-              <div class="flex flex-wrap gap-2">
-                <button
-v-for="related in relatedApplications" :key="related.code"
-                        class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-1 text-xs font-mono text-rose-700"
-                        @click="selectByCode(related.code)">
-                  {{ related.code }}
-                  <span class="font-sans text-rose-500">{{ related.relations.join('、') }}</span>
-                </button>
+            <template v-else>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
+                <div>
+                  <h3 class="font-semibold text-slate-700 mb-2">網路資訊</h3>
+                  <ul class="space-y-1">
+                    <li class="break-all">IP 位址：<span class="font-mono">{{ selected?.ipAddress }}</span></li>
+                    <li class="break-all">IP 網段：<span class="font-mono">{{ subnetOf(selected?.ipAddress || '') }}</span></li>
+                    <li>國家：{{ selected?.ipGeolocation?.country || '未知' }}</li>
+                    <li>城市：{{ selected?.ipGeolocation?.city || '未知' }}</li>
+                    <li>時區：{{ selected?.ipGeolocation?.timezone || '未知' }}</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-slate-700 mb-2">裝置與識別</h3>
+                  <ul class="space-y-1">
+                    <li>作業系統：{{ uaParsed.os?.name }} {{ uaParsed.os?.version }}</li>
+                    <li>瀏覽器：{{ uaParsed.browser?.name }} {{ uaParsed.browser?.version }}</li>
+                    <li>Zebra 代碼：<span class="font-mono text-xs">{{ selected?.zebraCode }}</span></li>
+                    <li class="break-all">
+                      使用者代理：
+                      <code class="text-xs bg-slate-100 rounded px-1.5 py-0.5">{{ selected?.userAgent }}</code>
+                    </li>
+                  </ul>
+                </div>
               </div>
-              <p class="mt-2 text-xs text-slate-400">
-                關聯依據：Zebra（瀏覽器辨識碼）、IP、網段；裝置指紋僅在同 IP 或同 Zebra 時作為補強，權重越高越可能為同一人
-              </p>
-            </div>
+
+              <!-- Cluster analysis -->
+              <div v-if="relatedApplications.length" class="mt-5 pt-5 border-t border-slate-100">
+                <h3 class="font-semibold text-slate-700 mb-2">
+                  關聯申請（疑似同一人／集團，共 {{ relatedApplications.length }} 筆）
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                  <button
+v-for="related in relatedApplications" :key="related.code"
+                          class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 cursor-pointer px-3 py-1 text-xs font-mono text-rose-700"
+                          @click="selectByCode(related.code)">
+                    {{ related.code }}
+                    <span class="font-sans text-rose-500">{{ related.relations.join('、') }}</span>
+                  </button>
+                </div>
+                <p class="mt-2 text-xs text-slate-400">
+                  關聯依據：Zebra（瀏覽器辨識碼）、IP、網段；裝置指紋僅在同 IP 或同 Zebra 時作為補強，權重越高越可能為同一人
+                </p>
+              </div>
+            </template>
           </template>
 
           <template #footer>
+            <div v-if="selectedLoading" class="w-full flex justify-end gap-2">
+              <USkeleton class="h-9 w-20 !rounded-full"/>
+              <USkeleton class="h-9 w-20 !rounded-full"/>
+            </div>
             <div
-v-if="selected?.commitBy === null || selected?.commitBy === undefined"
+v-else-if="selected?.commitBy === null || selected?.commitBy === undefined"
                  class="w-full flex justify-end gap-2">
               <button
-class="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold px-5 py-2"
+class="rounded-full bg-emerald-500 hover:bg-emerald-600 cursor-pointer text-white text-sm font-bold px-5 py-2"
                       @click="commit(true)">
                 許可
               </button>
               <button
-class="rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-5 py-2"
+class="rounded-full bg-red-500 hover:bg-red-600 cursor-pointer text-white text-sm font-bold px-5 py-2"
                       @click="commit(false)">
                 否決
               </button>
@@ -268,16 +302,15 @@ const graphStats = ref<Record<string, number> | null>(null);
 
 const selected = ref<any>(null);
 const commitNickname = ref<string | null>(null);
+const selectedLoading = ref(false);
+const detailOpen = ref(false);
 
-const detailOpen = computed({
-  get: () => !!selected.value,
-  set: (open: boolean) => {
-    if (!open) {
-      selected.value = null;
-      commitNickname.value = null;
-    }
-  },
-});
+const closeDetail = () => {
+  detailOpen.value = false;
+  selected.value = null;
+  commitNickname.value = null;
+  selectedLoading.value = false;
+};
 
 interface StateOption {
   value: string;
@@ -429,6 +462,7 @@ const getUserNickname = async (userId: string) => {
 
 const selectApplication = async (application: any) => {
   selected.value = application;
+  detailOpen.value = true;
   commitNickname.value = null;
   if (application.commitBy) {
     commitNickname.value = await getUserNickname(application.commitBy);
@@ -444,6 +478,8 @@ const selectByCode = async (code: string) => {
     return;
   }
   // Fallback: fetch the code directly from the backend
+  selectedLoading.value = true;
+  detailOpen.value = true;
   try {
     const response = await api?.get('applications', {
       searchParams: {code},
@@ -452,11 +488,14 @@ const selectByCode = async (code: string) => {
       await selectApplication(response);
     }
   } catch (e: any) {
+    closeDetail();
     if (e?.response?.status === 404) {
       status.value = '加入代碼不存在';
     } else {
       status.value = '發生嚴重錯誤';
     }
+  } finally {
+    selectedLoading.value = false;
   }
 };
 
