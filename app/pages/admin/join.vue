@@ -16,7 +16,7 @@
           </p>
         </div>
         <button
-class="inline-flex items-center gap-2 rounded-full bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-4 py-2 shadow disabled:opacity-50"
+class="inline-flex items-center gap-2 rounded-full bg-sky-500 hover:bg-sky-600 cursor-pointer disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 shadow disabled:opacity-50"
                 :disabled="loading"
                 @click="load">
           <UIcon :class="loading ? 'animate-spin' : ''" name="i-heroicons-arrow-path" class="h-4 w-4"/>
@@ -65,7 +65,7 @@ v-for="option in stateOptions" :key="option.value"
                     :class="stateFilter === option.value ?
                       'bg-sky-500 text-white' :
                       'bg-white text-slate-600 hover:bg-slate-50'"
-                    class="px-4 py-1.5 text-sm font-semibold"
+                    class="px-4 py-1.5 text-sm font-semibold cursor-pointer"
                     @click="stateFilter = option.value">
               {{ option.label }}
             </button>
@@ -94,13 +94,13 @@ v-model="query"
           <div class="inline-flex rounded-full bg-white border border-slate-200 shadow-sm overflow-hidden">
             <button
 :class="viewMode === 'list' ? 'bg-indigo-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'"
-                    class="px-4 py-1.5 text-sm font-semibold"
+                    class="px-4 py-1.5 text-sm font-semibold cursor-pointer"
                     @click="viewMode = 'list'">
               列表
             </button>
             <button
 :class="viewMode === 'graph' ? 'bg-indigo-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'"
-                    class="px-4 py-1.5 text-sm font-semibold"
+                    class="px-4 py-1.5 text-sm font-semibold cursor-pointer"
                     @click="viewMode = 'graph'">
               關聯圖
             </button>
