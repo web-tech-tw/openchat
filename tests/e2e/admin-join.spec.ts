@@ -53,12 +53,22 @@ const newPage = async (options: PageOptions = {}): Promise<Page> => {
   const context = await browser!.newContext(
       options.viewport ? {viewport: options.viewport} : undefined,
   );
-  await context.route('**/recv/openchat/applications/list*', (route) =>
+  await context.route('**/recv/openchat/applications/list*', (route) => {
+    const codes = new URL(route.request().url()).searchParams.get('codes');
+    const body = codes ? {
+      ...listResponse,
+      total: listResponse.applications.filter(
+          (application: any) => codes.split(',').includes(application.code),
+      ).length,
+      applications: listResponse.applications.filter(
+          (application: any) => codes.split(',').includes(application.code),
+      ),
+    } : listResponse;
     route.fulfill({
       contentType: 'application/json',
-      body: JSON.stringify(listResponse),
-    }),
-  );
+      body: JSON.stringify(body),
+    });
+  });
   await context.route('**/recv/openchat/applications/graph*', (route) =>
     route.fulfill({
       contentType: 'application/json',
@@ -115,10 +125,10 @@ test('沒有 token 時轉跳 Sara 登入', async () => {
 test('儀表板載入統計卡與申請列表', async () => {
   const page = await newPage();
   await gotoDashboard(page);
+  await page.getByText('已載入 8 / 8 筆').waitFor();
   const totalCardText = await page.getByText('總申請').locator('..').textContent();
   expect(totalCardText).toContain('8');
   await page.getByText('待審核').first().waitFor();
-  await page.getByText('已載入 8 / 8 筆').waitFor();
   await page.getByText('bb22cc33').first().waitFor();
   await page.close();
 });

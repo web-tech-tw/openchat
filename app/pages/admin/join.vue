@@ -167,7 +167,7 @@ v-if="item.ipGeolocation?.country"
             </div>
           </div>
           <div class="flex items-center justify-between px-4 py-2 border-t border-slate-100 text-xs text-slate-400">
-            <span>已載入 {{ filteredApplications.length }} / {{ stats?.total ?? 0 }} 筆</span>
+            <span>已載入 {{ filteredApplications.length }} / {{ listTotal }} 筆</span>
             <span v-if="loadingMore">載入中…</span>
             <span v-else-if="!nextCursor">已載入全部</span>
             <span v-else>捲動到底自動載入更多</span>
@@ -389,6 +389,7 @@ const formatDevice = (application: any) => {
 const roomOptions = ref<{slug: string; label: string}[]>([]);
 const nextCursor = ref<string | null>(null);
 const loadingMore = ref(false);
+const listTotal = ref(0);
 const clusterCodes = ref<string[] | null>(null);
 
 const inspectCluster = (codes: string[]) => {
@@ -400,6 +401,12 @@ const listSearchParams = (cursor: string | null) => {
   const searchParams: Record<string, string> = {limit: '100'};
   if (cursor) {
     searchParams.cursor = cursor;
+  }
+  if (clusterCodes.value) {
+    // The cluster drill-down comes from the graph, which ignores the
+    // state and room filters, so the list must not apply them either
+    searchParams.codes = clusterCodes.value.join(',');
+    return searchParams;
   }
   if (stateFilter.value !== 'all') {
     searchParams.state = stateFilter.value;
@@ -429,6 +436,7 @@ const loadListPage = async (cursor: string | null) => {
     }
   }
   stats.value = response?.stats || null;
+  listTotal.value = response?.total ?? 0;
   nextCursor.value = response?.nextCursor || null;
 
   // Accumulate the room options across pages
@@ -490,21 +498,16 @@ const load = async () => {
   }
 };
 
-watch([stateFilter, roomFilter], () => {
+watch([stateFilter, roomFilter, clusterCodes], () => {
   if (access.value) {
     resetList();
   }
 });
 
 const filteredApplications = computed(() => {
-  let list = applications.value;
-  if (clusterCodes.value) {
-    const codeSet = new Set(clusterCodes.value);
-    list = list.filter((application) => codeSet.has(application.code));
-  }
   const keyword = query.value.trim();
-  if (!keyword) return list;
-  return list.filter((application) => application.code.includes(keyword));
+  if (!keyword) return applications.value;
+  return applications.value.filter((application) => application.code.includes(keyword));
 });
 
 const riskOf = (code: string) => {
